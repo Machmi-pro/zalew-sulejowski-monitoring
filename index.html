@@ -350,7 +350,7 @@ function filterByRange(rows, range) {
 
 function renderChart(rows, range) {
   const filtered = filterByRange(rows, range);
-  const many = filtered.length > 40; // przy dużej liczbie punktów zmniejszamy kropki
+  const many = filtered.length > 20; // przy dużej liczbie punktów zmniejszamy kropki
 
   const ctx = document.getElementById('chart').getContext('2d');
   if (chartInstance) chartInstance.destroy();
