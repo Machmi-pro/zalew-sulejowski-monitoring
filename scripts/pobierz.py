@@ -26,8 +26,33 @@ DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "sulejow.json"
 VNORM_FALLBACK = 75.1
 
 
+def get_materialy_link(html_text: str):
+    """
+    Wyciąga link z sekcji "Materiały" - to ZAWSZE najświeższy, aktualny plik
+    (nazwany "Sytuacja_hydrologiczna_YYYY-MM-DD"), inny format niż wpisy
+    w "Archiwalnych komunikatach". To najszybszy sposób na dane z bieżącego dnia,
+    bez czekania aż trafią do archiwum.
+    """
+    # Usuń niewidoczne znaki (zero-width space itp.), które gov.pl wstawia w tekst
+    clean = re.sub(r"[\u200b\u200c\u200d\ufeff]", "", html_text)
+    pattern = re.compile(
+        r'href="(https://www\.gov\.pl/attachment/[a-f0-9-]+)"[^>]*>\s*'
+        r'Sytuacja[_\s]*hydrologiczna[_\s]*(\d{4}-\d{2}-\d{2})',
+        re.IGNORECASE,
+    )
+    match = pattern.search(clean)
+    if not match:
+        return None
+    url, date_str = match.group(1), match.group(2)
+    try:
+        d = datetime.strptime(date_str, "%Y-%m-%d").date()
+    except ValueError:
+        return None
+    return (d, url)
+
+
 def get_archive_links(html_text: str):
-    """Wyciąga (data, url) z listy komunikatów na stronie Wód Polskich."""
+    """Wyciąga (data, url) z listy archiwalnych komunikatów na stronie Wód Polskich."""
     pattern = re.compile(
         r'href="(https://www\.gov\.pl/attachment/[a-f0-9-]+)"[^>]*>\s*'
         r'(?:Skrócony\s+)?Komunikat[^<]*z\s+dnia\s+(\d{1,2}\.\d{1,2}\.\d{4})',
@@ -107,7 +132,20 @@ def main():
 
     resp = requests.get(LIST_URL, headers=HEADERS, timeout=30)
     resp.raise_for_status()
-    links = get_archive_links(resp.text)
+
+    # 1) Najpierw próbujemy sekcji "Materiały" - to zawsze najświeższy plik,
+    #    dostępny szybciej niż wpis w archiwum (który bywa opóźniony/cache'owany).
+    materialy = get_materialy_link(resp.text)
+
+    # 2) Uzupełniamy o listę archiwalną (dla nadrobienia zaległych dni)
+    archive_links = get_archive_links(resp.text)
+
+    links = []
+    if materialy:
+        links.append(materialy)
+    for d, url in archive_links:
+        if not links or d != links[0][0]:
+            links.append((d, url))
 
     if not links:
         print("Nie znaleziono żadnych linków na stronie listy komunikatów.", file=sys.stderr)
