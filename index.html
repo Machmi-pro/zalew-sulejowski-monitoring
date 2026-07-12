@@ -239,7 +239,12 @@
   </section>
 
   <section>
-    <h2>Dane źródłowe</h2>
+    <h2>Dane źródłowe
+      <span class="range-toggle" id="table-range-toggle">
+        <button type="button" class="range-btn" data-range="30" id="btn-table-range-30">30 dni</button>
+        <button type="button" class="range-btn" data-range="all" id="btn-table-range-all">Cały rok</button>
+      </span>
+    </h2>
     <div class="chart-card">
       <table>
         <thead>
@@ -312,10 +317,11 @@ function renderStatus(latest) {
   }
 }
 
-function renderTable(rows) {
+function renderTable(rows, range) {
+  const filtered = filterByRange(rows, range);
   const tbody = document.getElementById('table-body');
   tbody.innerHTML = '';
-  [...rows].reverse().forEach(r => {
+  [...filtered].reverse().forEach(r => {
     const tr = document.createElement('tr');
     if (r.poj_aktualna_mln_m3 < CRITICAL) tr.className = 'below-critical';
     else if (r.poj_aktualna_mln_m3 < COMFORT) tr.className = 'below-comfort';
@@ -426,16 +432,40 @@ function initRangeToggle() {
   });
 }
 
+let tableRange = '30'; // domyślnie tabela też pokazuje ostatnie 30 dni
+
+function setActiveTableRangeButton(range) {
+  document.getElementById('btn-table-range-30').classList.toggle('active', range === '30');
+  document.getElementById('btn-table-range-all').classList.toggle('active', range === 'all');
+}
+
+function initTableRangeToggle() {
+  document.getElementById('btn-table-range-30').addEventListener('click', () => {
+    if (tableRange === '30') return;
+    tableRange = '30';
+    setActiveTableRangeButton('30');
+    renderTable(allRows, tableRange);
+  });
+  document.getElementById('btn-table-range-all').addEventListener('click', () => {
+    if (tableRange === 'all') return;
+    tableRange = 'all';
+    setActiveTableRangeButton('all');
+    renderTable(allRows, tableRange);
+  });
+}
+
 loadData()
   .then(rows => {
     if (!rows.length) throw new Error('Brak danych');
     allRows = rows;
     renderGauge(rows[rows.length - 1]);
     renderStatus(rows[rows.length - 1]);
-    renderTable(rows);
     setActiveRangeButton(currentRange);
     initRangeToggle();
     renderChart(allRows, currentRange);
+    setActiveTableRangeButton(tableRange);
+    initTableRangeToggle();
+    renderTable(allRows, tableRange);
   })
 
   .catch(err => {
