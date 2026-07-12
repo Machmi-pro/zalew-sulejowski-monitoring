@@ -1,2 +1,2 @@
 # zalew-sulejowski-monitoring
-Monitoring poziomu wody na Alewie Sulejowskim
+Monitoring poziomu wody na Zalewie Sulejowskim
