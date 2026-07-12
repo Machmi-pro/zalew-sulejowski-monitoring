@@ -77,6 +77,28 @@
     "zrodlo_url": "https://www.gov.pl/attachment/3c1b6bc7-5fbe-481d-ad1d-366953922289"
   },
   {
+    "data": "2026-07-01",
+    "rzedna_m_npm": 166.03,
+    "poj_aktualna_mln_m3": 64.7,
+    "poj_normalna_mln_m3": 75.1,
+    "napelnienie_procent": 86.2,
+    "doplyw_m3s": 6.6,
+    "odplyw_m3s": 11.0,
+    "rezerwa_aktualna_mln_m3": 19.6,
+    "zrodlo_url": "https://www.gov.pl/attachment/c7ed2d62-eb9e-4e83-a04e-a456c84b61a6"
+  },
+  {
+    "data": "2026-07-02",
+    "rzedna_m_npm": 165.98,
+    "poj_aktualna_mln_m3": 64.2,
+    "poj_normalna_mln_m3": 75.1,
+    "napelnienie_procent": 85.5,
+    "doplyw_m3s": 8.7,
+    "odplyw_m3s": 11.0,
+    "rezerwa_aktualna_mln_m3": 20.1,
+    "zrodlo_url": "https://www.gov.pl/attachment/e4b1a524-6371-4841-b8ef-6b55a50157c7"
+  },
+  {
     "data": "2026-07-03",
     "rzedna_m_npm": 165.96,
     "poj_aktualna_mln_m3": 63.5,
@@ -86,6 +108,39 @@
     "odplyw_m3s": 11.0,
     "rezerwa_aktualna_mln_m3": 20.8,
     "zrodlo_url": "https://www.gov.pl/attachment/cef4b062-c4f0-42cc-a5b5-8f8e18a39e0a"
+  },
+  {
+    "data": "2026-07-06",
+    "rzedna_m_npm": 165.88,
+    "poj_aktualna_mln_m3": 62.1,
+    "poj_normalna_mln_m3": 75.1,
+    "napelnienie_procent": 82.7,
+    "doplyw_m3s": 8.6,
+    "odplyw_m3s": 11.0,
+    "rezerwa_aktualna_mln_m3": 22.2,
+    "zrodlo_url": "https://www.gov.pl/attachment/877afcfe-095b-4c6c-8e2b-d2f50181f2a8"
+  },
+  {
+    "data": "2026-07-07",
+    "rzedna_m_npm": 165.86,
+    "poj_aktualna_mln_m3": 61.8,
+    "poj_normalna_mln_m3": 75.1,
+    "napelnienie_procent": 82.3,
+    "doplyw_m3s": 8.6,
+    "odplyw_m3s": 11.0,
+    "rezerwa_aktualna_mln_m3": 22.6,
+    "zrodlo_url": "https://www.gov.pl/attachment/d1e577e4-cd84-4104-b5f1-325132e64c38"
+  },
+  {
+    "data": "2026-07-08",
+    "rzedna_m_npm": 165.83,
+    "poj_aktualna_mln_m3": 61.2,
+    "poj_normalna_mln_m3": 75.1,
+    "napelnienie_procent": 81.5,
+    "doplyw_m3s": 6.8,
+    "odplyw_m3s": 11.0,
+    "rezerwa_aktualna_mln_m3": 23.1,
+    "zrodlo_url": "https://www.gov.pl/attachment/38ce0415-ad34-479c-acaa-88dc969b2266"
   },
   {
     "data": "2026-07-09",
