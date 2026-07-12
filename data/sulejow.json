@@ -122,7 +122,127 @@
     "rezerwa_aktualna_mln_m3": 13.5,
     "zrodlo_url": "https://www.gov.pl/attachment/943f77f4-7d21-4fd5-b29e-266fc1a5bf3c"
   },
-
+{
+    "data": "2026-06-12",
+    "rzedna_m_npm": 166.29,
+    "poj_aktualna_mln_m3": 69.4,
+    "poj_normalna_mln_m3": 75.1,
+    "napelnienie_procent": 92.4,
+    "doplyw_m3s": 10.6,
+    "odplyw_m3s": 11.0,
+    "rezerwa_aktualna_mln_m3": 15.0,
+    "zrodlo_url": "https://www.gov.pl/attachment/35aa592a-9d4c-47b1-8d5c-a197c82a3eac"
+  },
+  {
+    "data": "2026-06-15",
+    "rzedna_m_npm": 166.28,
+    "poj_aktualna_mln_m3": 69.2,
+    "poj_normalna_mln_m3": 75.1,
+    "napelnienie_procent": 92.1,
+    "doplyw_m3s": 10.6,
+    "odplyw_m3s": 11.0,
+    "rezerwa_aktualna_mln_m3": 15.1,
+    "zrodlo_url": "https://www.gov.pl/attachment/888e79c9-e48a-41d9-a082-5f22d2d2af65"
+  },
+  {
+    "data": "2026-06-16",
+    "rzedna_m_npm": 166.27,
+    "poj_aktualna_mln_m3": 69.0,
+    "poj_normalna_mln_m3": 75.1,
+    "napelnienie_procent": 91.9,
+    "doplyw_m3s": 10.6,
+    "odplyw_m3s": 11.0,
+    "rezerwa_aktualna_mln_m3": 15.3,
+    "zrodlo_url": "https://www.gov.pl/attachment/fb863de8-485a-434b-9baf-92cba65dfa26"
+  },
+  {
+    "data": "2026-06-17",
+    "rzedna_m_npm": 166.26,
+    "poj_aktualna_mln_m3": 68.8,
+    "poj_normalna_mln_m3": 75.1,
+    "napelnienie_procent": 91.6,
+    "doplyw_m3s": 10.6,
+    "odplyw_m3s": 11.0,
+    "rezerwa_aktualna_mln_m3": 15.5,
+    "zrodlo_url": "https://www.gov.pl/attachment/a35eccda-418d-4145-a557-f48c800e6f3a"
+  },
+  {
+    "data": "2026-06-18",
+    "rzedna_m_npm": 166.24,
+    "poj_aktualna_mln_m3": 68.5,
+    "poj_normalna_mln_m3": 75.1,
+    "napelnienie_procent": 91.2,
+    "doplyw_m3s": 8.4,
+    "odplyw_m3s": 11.0,
+    "rezerwa_aktualna_mln_m3": 15.9,
+    "zrodlo_url": "https://www.gov.pl/attachment/bd0bf9a6-f469-41b0-8bcf-94ed724828e1"
+  },
+  {
+    "data": "2026-06-19",
+    "rzedna_m_npm": 166.23,
+    "poj_aktualna_mln_m3": 68.3,
+    "poj_normalna_mln_m3": 75.1,
+    "napelnienie_procent": 90.9,
+    "doplyw_m3s": 10.6,
+    "odplyw_m3s": 11.0,
+    "rezerwa_aktualna_mln_m3": 16.0,
+    "zrodlo_url": "https://www.gov.pl/attachment/2745bcde-c8d6-4535-bcf0-9a16a3354186"
+  },
+  {
+    "data": "2026-06-22",
+    "rzedna_m_npm": 166.19,
+    "poj_aktualna_mln_m3": 67.6,
+    "poj_normalna_mln_m3": 75.1,
+    "napelnienie_procent": 90.0,
+    "doplyw_m3s": 10.6,
+    "odplyw_m3s": 11.0,
+    "rezerwa_aktualna_mln_m3": 16.8,
+    "zrodlo_url": "https://www.gov.pl/attachment/14d7ecc6-493d-4a37-9331-be5af34bf2dd"
+  },
+  {
+    "data": "2026-06-23",
+    "rzedna_m_npm": 166.18,
+    "poj_aktualna_mln_m3": 67.4,
+    "poj_normalna_mln_m3": 75.1,
+    "napelnienie_procent": 89.7,
+    "doplyw_m3s": 10.6,
+    "odplyw_m3s": 11.0,
+    "rezerwa_aktualna_mln_m3": 16.9,
+    "zrodlo_url": "https://www.gov.pl/attachment/a0685ed0-d5f2-4f7d-8cf9-ca25e6c214a4"
+  },
+  {
+    "data": "2026-06-24",
+    "rzedna_m_npm": 166.17,
+    "poj_aktualna_mln_m3": 67.2,
+    "poj_normalna_mln_m3": 75.1,
+    "napelnienie_procent": 89.5,
+    "doplyw_m3s": 10.6,
+    "odplyw_m3s": 11.0,
+    "rezerwa_aktualna_mln_m3": 17.1,
+    "zrodlo_url": "https://www.gov.pl/attachment/250dd84e-c170-4389-892d-cb36435c9651"
+  },
+  {
+    "data": "2026-06-25",
+    "rzedna_m_npm": 166.17,
+    "poj_aktualna_mln_m3": 66.9,
+    "poj_normalna_mln_m3": 75.1,
+    "napelnienie_procent": 89.1,
+    "doplyw_m3s": 8.7,
+    "odplyw_m3s": 11.0,
+    "rezerwa_aktualna_mln_m3": 17.5,
+    "zrodlo_url": "https://www.gov.pl/attachment/eef4cf14-f268-498a-b7b9-cb8852c19505"
+  },
+  {
+    "data": "2026-06-26",
+    "rzedna_m_npm": 166.12,
+    "poj_aktualna_mln_m3": 66.3,
+    "poj_normalna_mln_m3": 75.1,
+    "napelnienie_procent": 88.3,
+    "doplyw_m3s": 8.0,
+    "odplyw_m3s": 12.5,
+    "rezerwa_aktualna_mln_m3": 18.0,
+    "zrodlo_url": "https://www.gov.pl/attachment/4cb7f88c-3dca-4c22-86d5-29da3ac342a4"
+  },
   {
     "data": "2026-06-29",
     "rzedna_m_npm": 166.06,
@@ -133,6 +253,17 @@
     "odplyw_m3s": 11.0,
     "rezerwa_aktualna_mln_m3": 19.1,
     "zrodlo_url": "https://www.gov.pl/attachment/3c1b6bc7-5fbe-481d-ad1d-366953922289"
+  },
+  {
+    "data": "2026-06-30",
+    "rzedna_m_npm": 166.03,
+    "poj_aktualna_mln_m3": 64.7,
+    "poj_normalna_mln_m3": 75.1,
+    "napelnienie_procent": 86.2,
+    "doplyw_m3s": 6.6,
+    "odplyw_m3s": 11.0,
+    "rezerwa_aktualna_mln_m3": 19.6,
+    "zrodlo_url": "https://www.gov.pl/attachment/62ee5c7e-9dc0-453b-a9dc-de6d986cddd6"
   },
   {
     "data": "2026-07-01",
