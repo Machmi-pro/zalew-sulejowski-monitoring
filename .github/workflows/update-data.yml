@@ -5,7 +5,7 @@ on:
     # UWAGA: godzina jest w UTC!
     # 0 8 * * *  -> 08:00 UTC = 10:00 czasu polskiego (CEST, lato) / 09:00 (CET, zima)
     # Zmień pierwsze dwie liczby (minuta godzina), żeby ustawić inną porę.
-    - cron: '0 8 * * *'
+    - cron: '0 9 * * *'
   workflow_dispatch: {}   # pozwala też uruchomić ręcznie z zakładki "Actions"
 
 permissions:
