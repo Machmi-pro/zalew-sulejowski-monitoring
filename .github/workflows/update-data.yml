@@ -1,0 +1,38 @@
+name: Aktualizacja danych zbiornika Sulejów
+
+on:
+  schedule:
+    # UWAGA: godzina jest w UTC!
+    # 0 8 * * *  -> 08:00 UTC = 10:00 czasu polskiego (CEST, lato) / 09:00 (CET, zima)
+    # Zmień pierwsze dwie liczby (minuta godzina), żeby ustawić inną porę.
+    - cron: '0 8 * * *'
+  workflow_dispatch: {}   # pozwala też uruchomić ręcznie z zakładki "Actions"
+
+permissions:
+  contents: write
+
+jobs:
+  aktualizuj:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pobierz repozytorium
+        uses: actions/checkout@v4
+
+      - name: Ustaw Pythona
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Zainstaluj zależności
+        run: pip install requests pdfplumber
+
+      - name: Uruchom skrypt pobierający dane
+        run: python scripts/pobierz.py
+
+      - name: Zapisz zmiany w repozytorium
+        run: |
+          git config user.name "sulejow-bot"
+          git config user.email "sulejow-bot@users.noreply.github.com"
+          git add data/sulejow.json
+          git diff --quiet --cached || git commit -m "Automatyczna aktualizacja danych zbiornika Sulejów"
+          git push
