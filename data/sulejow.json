@@ -152,5 +152,16 @@
     "odplyw_m3s": 11.0,
     "rezerwa_aktualna_mln_m3": 23.6,
     "zrodlo_url": "https://www.gov.pl/attachment/3fbe44d4-7db0-4715-b4a1-ffa2e7e9c210"
+  },
+    {
+    "data": "2026-07-10",
+    "rzedna_m_npm": 165.77,
+    "poj_aktualna_mln_m3": 60.2,
+    "poj_normalna_mln_m3": 75.1,
+    "napelnienie_procent": 80.2,
+    "doplyw_m3s": 7.0,
+    "odplyw_m3s": 11.3,
+    "rezerwa_aktualna_mln_m3": 24.1,
+    "zrodlo_url": "https://www.gov.pl/attachment/5e95ff0e-506e-4eea-bac4-d1bb450f2236"
   }
 ]
