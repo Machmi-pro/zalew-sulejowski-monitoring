@@ -112,7 +112,20 @@
   section h2{
     font-size:1.05rem; font-weight:600; color:var(--ink);
     margin: 0 0 1rem; padding-top: 0.25rem;
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.6rem;
   }
+  .range-toggle{
+    display:inline-flex; gap:0.25rem;
+    background: var(--bg-soft); border:1px solid var(--panel-border);
+    border-radius:99px; padding:2px;
+  }
+  .range-btn{
+    font-family:'SF Mono','Menlo',monospace; font-size:0.68rem; letter-spacing:0.02em;
+    border:none; background:transparent; color:var(--ink-dim);
+    padding:0.32rem 0.7rem; border-radius:99px; cursor:pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .range-btn.active{ background: var(--tide); color:#fff; }
   .chart-card{
     background: #ffffff;
     border: 1px solid var(--panel-border);
@@ -209,7 +222,12 @@
   </div>
 
   <section>
-    <h2>Pojemność w czasie</h2>
+    <h2>Pojemność w czasie
+      <span class="range-toggle" id="range-toggle">
+        <button type="button" class="range-btn" data-range="30" id="btn-range-30">30 dni</button>
+        <button type="button" class="range-btn" data-range="all" id="btn-range-all">Cały rok</button>
+      </span>
+    </h2>
     <div class="chart-card">
       <canvas id="chart" height="260"></canvas>
       <div class="legend-row">
@@ -313,33 +331,51 @@ function renderTable(rows) {
   });
 }
 
-function renderChart(rows) {
+let chartInstance = null;
+let allRows = [];
+let currentRange = '30'; // '30' albo 'all'
+
+function filterByRange(rows, range) {
+  if (range === 'all') return rows;
+  const cutoff = new Date(rows[rows.length - 1].data);
+  cutoff.setDate(cutoff.getDate() - 30);
+  return rows.filter(r => new Date(r.data) >= cutoff);
+}
+
+function renderChart(rows, range) {
+  const filtered = filterByRange(rows, range);
+  const many = filtered.length > 40; // przy dużej liczbie punktów zmniejszamy kropki
+
   const ctx = document.getElementById('chart').getContext('2d');
-  new Chart(ctx, {
+  if (chartInstance) chartInstance.destroy();
+
+  chartInstance = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: rows.map(r => r.data.slice(5)),
+      labels: filtered.map(r => r.data.slice(5)),
       datasets: [
         {
           label: 'Pojemność aktualna (mln m³)',
-          data: rows.map(r => r.poj_aktualna_mln_m3),
+          data: filtered.map(r => r.poj_aktualna_mln_m3),
           borderColor: '#1f8f80',
           backgroundColor: 'rgba(31,143,128,0.10)',
           fill: true,
           tension: 0.3,
-          pointRadius: 3,
+          borderWidth: many ? 1.5 : 2,
+          pointRadius: many ? 1.5 : 3,
+          pointHoverRadius: 5,
           pointBackgroundColor: '#1f8f80',
         },
         {
           label: 'Minimum komfortu',
-          data: rows.map(() => COMFORT),
+          data: filtered.map(() => COMFORT),
           borderColor: '#b8791a',
           borderDash: [5, 4],
           pointRadius: 0,
         },
         {
           label: 'Poziom krytyczny',
-          data: rows.map(() => CRITICAL),
+          data: filtered.map(() => CRITICAL),
           borderColor: '#c94a30',
           borderDash: [5, 4],
           pointRadius: 0,
@@ -357,7 +393,12 @@ function renderChart(rows) {
           title: { display: true, text: 'mln m³', color: '#5c7876' },
         },
         x: {
-          ticks: { color: '#5c7876' },
+          ticks: {
+            color: '#5c7876',
+            autoSkip: true,
+            maxRotation: 0,
+            maxTicksLimit: many ? 10 : undefined,
+          },
           grid: { color: 'rgba(14,42,42,0.03)' },
         },
       },
@@ -365,14 +406,38 @@ function renderChart(rows) {
   });
 }
 
+function setActiveRangeButton(range) {
+  document.getElementById('btn-range-30').classList.toggle('active', range === '30');
+  document.getElementById('btn-range-all').classList.toggle('active', range === 'all');
+}
+
+function initRangeToggle() {
+  document.getElementById('btn-range-30').addEventListener('click', () => {
+    if (currentRange === '30') return;
+    currentRange = '30';
+    setActiveRangeButton('30');
+    renderChart(allRows, '30');
+  });
+  document.getElementById('btn-range-all').addEventListener('click', () => {
+    if (currentRange === 'all') return;
+    currentRange = 'all';
+    setActiveRangeButton('all');
+    renderChart(allRows, 'all');
+  });
+}
+
 loadData()
   .then(rows => {
     if (!rows.length) throw new Error('Brak danych');
+    allRows = rows;
     renderGauge(rows[rows.length - 1]);
     renderStatus(rows[rows.length - 1]);
     renderTable(rows);
-    renderChart(rows);
+    setActiveRangeButton(currentRange);
+    initRangeToggle();
+    renderChart(allRows, currentRange);
   })
+
   .catch(err => {
     document.getElementById('latest-label').textContent = 'Błąd wczytywania danych: ' + err.message;
   });
