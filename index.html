@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zalew Sulejowski — monitor pojemności</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root{
+    --depth-0:#04141c;
+    --depth-1:#0a2733;
+    --depth-2:#123c4d;
+    --surface:#e8f3f1;
+    --foam:#bfe3dd;
+    --tide:#3fb6a8;
+    --alert:#e0684a;
+    --caution:#e0a94a;
+    --ink:#eaf6f4;
+    --ink-dim:#8fb0ab;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, var(--depth-2), transparent),
+      linear-gradient(180deg, var(--depth-0), #06181f 60%, #04141c);
+    color:var(--ink);
+    font-family: 'Iowan Old Style', 'Georgia', serif;
+    min-height:100vh;
+    padding: 0 0 4rem;
+  }
+  .mono{ font-family: 'SF Mono','Menlo','Consolas',monospace; letter-spacing:0.02em; }
+
+  header{
+    padding: 3rem 1.5rem 2rem;
+    max-width: 960px;
+    margin: 0 auto;
+    border-bottom: 1px solid rgba(191,227,221,0.12);
+  }
+  .eyebrow{
+    font-family:'SF Mono','Menlo',monospace;
+    font-size:0.72rem;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--tide);
+    margin:0 0 0.6rem;
+  }
+  h1{
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-weight:400;
+    margin:0 0 0.5rem;
+    color:var(--ink);
+    line-height:1.05;
+  }
+  .subtitle{ color:var(--ink-dim); font-size:1rem; max-width:56ch; margin:0; }
+
+  main{ max-width:960px; margin:0 auto; padding: 2rem 1.5rem 0; }
+
+  /* --- SYGNATURA: pionowy wskaźnik napełnienia zbiornika --- */
+  .status-panel{
+    display:grid;
+    grid-template-columns: 120px 1fr;
+    gap: 2rem;
+    align-items:stretch;
+    background: rgba(191,227,221,0.04);
+    border: 1px solid rgba(191,227,221,0.12);
+    border-radius: 4px;
+    padding: 1.75rem;
+    margin-bottom: 2.5rem;
+  }
+  .gauge-wrap{ display:flex; flex-direction:column; align-items:center; gap:0.5rem;}
+  .gauge{
+    position:relative;
+    width: 46px;
+    height: 220px;
+    border: 1px solid rgba(191,227,221,0.3);
+    border-radius: 3px;
+    overflow:hidden;
+    background: rgba(4,20,28,0.6);
+  }
+  .gauge-fill{
+    position:absolute; bottom:0; left:0; right:0;
+    background: linear-gradient(180deg, var(--tide), #1f7d72);
+    transition: height 1.2s cubic-bezier(.22,.9,.34,1);
+  }
+  .gauge-line{
+    position:absolute; left:-6px; right:-6px; height:1px;
+    background: rgba(234,246,244,0.55);
+  }
+  .gauge-line span{
+    position:absolute; right: 52px; top:-7px;
+    font-size:0.62rem; color: var(--ink-dim); white-space:nowrap;
+  }
+  .gauge-caption{ font-size:0.68rem; color:var(--ink-dim); text-align:center; }
+
+  .status-copy{ display:flex; flex-direction:column; justify-content:center; }
+  .status-value{
+    font-size: clamp(2.2rem, 6vw, 3.4rem);
+    line-height:1;
+    margin:0;
+  }
+  .status-value span{ font-size:1.1rem; color:var(--ink-dim); margin-left:0.4rem; }
+  .status-label{ margin:0.35rem 0 0.9rem; font-size:0.95rem; color:var(--ink-dim); }
+  .status-badge{
+    display:inline-flex; align-items:center; gap:0.5rem;
+    font-family:'SF Mono','Menlo',monospace; font-size:0.75rem; letter-spacing:0.05em;
+    padding: 0.35rem 0.7rem; border-radius:99px; width:fit-content;
+    border:1px solid currentColor;
+  }
+  .dot{ width:7px; height:7px; border-radius:50%; background:currentColor; }
+
+  section h2{
+    font-size:1.15rem; font-weight:400; color:var(--foam);
+    margin: 0 0 1rem; padding-top: 0.5rem;
+  }
+  .chart-card{
+    background: rgba(191,227,221,0.03);
+    border: 1px solid rgba(191,227,221,0.1);
+    border-radius:4px;
+    padding: 1.5rem 1.25rem 1rem;
+    margin-bottom: 2.5rem;
+  }
+  .legend-row{
+    display:flex; gap:1.5rem; flex-wrap:wrap;
+    font-size:0.78rem; color:var(--ink-dim); margin-top:0.9rem;
+  }
+  .legend-row span{ display:inline-flex; align-items:center; gap:0.4rem; }
+  .swatch{ width:14px; height:3px; display:inline-block; }
+
+  table{ width:100%; border-collapse:collapse; font-size:0.85rem; }
+  th,td{ padding:0.55rem 0.6rem; text-align:right; border-bottom:1px solid rgba(191,227,221,0.1); }
+  th:first-child, td:first-child{ text-align:left; }
+  th{ color:var(--ink-dim); font-weight:400; font-family:'SF Mono','Menlo',monospace; font-size:0.68rem; letter-spacing:0.05em; text-transform:uppercase;}
+  tr.below-comfort td{ color: var(--caution); }
+  tr.below-critical td{ color: var(--alert); font-weight:600; }
+
+  footer{
+    max-width:960px; margin: 2rem auto 0; padding: 1.5rem;
+    color: var(--ink-dim); font-size:0.78rem; border-top:1px solid rgba(191,227,221,0.1);
+  }
+  footer a{ color: var(--tide); }
+
+  .updated-note{ font-size:0.75rem; color: var(--ink-dim); margin-top:0.75rem; font-family:'SF Mono','Menlo',monospace;}
+
+  @media (max-width: 600px){
+    .status-panel{ grid-template-columns: 90px 1fr; gap:1.25rem; padding:1.25rem;}
+    .gauge{ height:170px; width:36px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Zbiornik Sulejów &middot; Pilica &middot; RZGW Warszawa</p>
+  <h1>Ile wody trzyma zalew, dziś i przez ostatnie miesiące.</h1>
+  <p class="subtitle">Dane pochodzą z codziennych komunikatów PGW Wody Polskie. Strona odświeża się przy każdym wejściu — dane w tle aktualizuje osobny automat.</p>
+</header>
+
+<main>
+
+  <div class="status-panel">
+    <div class="gauge-wrap">
+      <div class="gauge" id="gauge">
+        <div class="gauge-line" id="line-max"><span>Vmax</span></div>
+        <div class="gauge-line" id="line-comfort"><span>komfort</span></div>
+        <div class="gauge-line" id="line-critical"><span>krytyczny</span></div>
+        <div class="gauge-fill" id="gauge-fill"></div>
+      </div>
+      <p class="gauge-caption">poziom<br>względem<br>Vmax</p>
+    </div>
+    <div class="status-copy">
+      <p class="status-value" id="latest-value">— <span>mln m³</span></p>
+      <p class="status-label" id="latest-label">Ładowanie danych…</p>
+      <div class="status-badge" id="status-badge">sprawdzam</div>
+      <p class="updated-note" id="updated-note"></p>
+    </div>
+  </div>
+
+  <section>
+    <h2>Pojemność w czasie</h2>
+    <div class="chart-card">
+      <canvas id="chart" height="260"></canvas>
+      <div class="legend-row">
+        <span><i class="swatch" style="background:var(--tide)"></i> pojemność aktualna</span>
+        <span><i class="swatch" style="background:var(--caution); opacity:0.8"></i> minimum komfortu (60 mln m³)</span>
+        <span><i class="swatch" style="background:var(--alert); opacity:0.8"></i> poziom krytyczny (45 mln m³)</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Dane źródłowe</h2>
+    <div class="chart-card">
+      <table>
+        <thead>
+          <tr><th>Data</th><th>Rzędna [m n.p.m.]</th><th>Pojemność [mln m³]</th><th>Napełnienie [%]</th><th>Dopływ [m³/s]</th><th>Odpływ [m³/s]</th><th>Rezerwa [mln m³]</th></tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Źródło: <a href="https://www.gov.pl/web/wody-polskie/sytuacja-hydrologiczna" target="_blank" rel="noopener">PGW Wody Polskie — Sytuacja hydrologiczna</a>.
+  Próg krytyczny (45 mln m³) i minimum komfortu (60 mln m³) to wartości robocze ustalone przez autora strony, nie oficjalne progi instrukcji gospodarowania wodą.
+</footer>
+
+<script>
+const CRITICAL = 45;
+const COMFORT = 60;
+const VMAX = 84.3; // pojemność maksymalna zbiornika, do skalowania wskaźnika
+
+async function loadData() {
+  const res = await fetch('data/sulejow.json?_=' + Date.now());
+  if (!res.ok) throw new Error('Nie udało się wczytać danych');
+  return res.json();
+}
+
+function statusFor(value) {
+  if (value < CRITICAL) return { label: 'Poniżej poziomu krytycznego', color: 'var(--alert)', word: 'krytyczny' };
+  if (value < COMFORT) return { label: 'Poniżej minimum komfortu', color: 'var(--caution)', word: 'ostrzeżenie' };
+  return { label: 'W normie, powyżej minimum komfortu', color: 'var(--tide)', word: 'w normie' };
+}
+
+function renderGauge(latest) {
+  const pct = Math.max(0, Math.min(100, (latest.poj_aktualna_mln_m3 / VMAX) * 100));
+  document.getElementById('gauge-fill').style.height = pct + '%';
+  const st = statusFor(latest.poj_aktualna_mln_m3);
+  document.getElementById('gauge-fill').style.background =
+    latest.poj_aktualna_mln_m3 < CRITICAL ? 'linear-gradient(180deg,#e0684a,#a3402a)' :
+    latest.poj_aktualna_mln_m3 < COMFORT ? 'linear-gradient(180deg,#e0a94a,#a3742a)' :
+    'linear-gradient(180deg,#3fb6a8,#1f7d72)';
+
+  const setLine = (id, valueAtLine) => {
+    const p = Math.max(0, Math.min(100, (valueAtLine / VMAX) * 100));
+    document.getElementById(id).style.bottom = p + '%';
+  };
+  setLine('line-max', VMAX);
+  setLine('line-comfort', COMFORT);
+  setLine('line-critical', CRITICAL);
+}
+
+function renderStatus(latest) {
+  document.getElementById('latest-value').innerHTML =
+    latest.poj_aktualna_mln_m3.toFixed(1) + ' <span>mln m³</span>';
+  const st = statusFor(latest.poj_aktualna_mln_m3);
+  document.getElementById('latest-label').textContent =
+    `${st.label} · napełnienie ${latest.napelnienie_procent}% · rzędna ${latest.rzedna_m_npm ?? '—'} m n.p.m.`;
+  const badge = document.getElementById('status-badge');
+  badge.textContent = st.word;
+  badge.style.color = st.color;
+  document.getElementById('updated-note').textContent =
+    'Ostatni pomiar: ' + latest.data + (latest.zrodlo_url ? ' · źródło komunikatu ↗' : '');
+  if (latest.zrodlo_url) {
+    document.getElementById('updated-note').innerHTML =
+      'Ostatni pomiar: ' + latest.data +
+      ' · <a href="' + latest.zrodlo_url + '" target="_blank" rel="noopener" style="color:var(--tide)">źródło komunikatu ↗</a>';
+  }
+}
+
+function renderTable(rows) {
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = '';
+  [...rows].reverse().forEach(r => {
+    const tr = document.createElement('tr');
+    if (r.poj_aktualna_mln_m3 < CRITICAL) tr.className = 'below-critical';
+    else if (r.poj_aktualna_mln_m3 < COMFORT) tr.className = 'below-comfort';
+    tr.innerHTML = `<td>${r.data}</td><td>${r.rzedna_m_npm ?? '—'}</td><td>${r.poj_aktualna_mln_m3.toFixed(1)}</td>` +
+      `<td>${r.napelnienie_procent}</td><td>${r.doplyw_m3s.toFixed(1)}</td><td>${r.odplyw_m3s.toFixed(1)}</td>` +
+      `<td>${r.rezerwa_aktualna_mln_m3.toFixed(1)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderChart(rows) {
+  const ctx = document.getElementById('chart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: rows.map(r => r.data.slice(5)),
+      datasets: [
+        {
+          label: 'Pojemność aktualna (mln m³)',
+          data: rows.map(r => r.poj_aktualna_mln_m3),
+          borderColor: '#3fb6a8',
+          backgroundColor: 'rgba(63,182,168,0.12)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 3,
+          pointBackgroundColor: '#3fb6a8',
+        },
+        {
+          label: 'Minimum komfortu',
+          data: rows.map(() => COMFORT),
+          borderColor: '#e0a94a',
+          borderDash: [5, 4],
+          pointRadius: 0,
+        },
+        {
+          label: 'Poziom krytyczny',
+          data: rows.map(() => CRITICAL),
+          borderColor: '#e0684a',
+          borderDash: [5, 4],
+          pointRadius: 0,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          min: 0, max: 90,
+          ticks: { color: '#8fb0ab' },
+          grid: { color: 'rgba(191,227,221,0.08)' },
+          title: { display: true, text: 'mln m³', color: '#8fb0ab' },
+        },
+        x: {
+          ticks: { color: '#8fb0ab' },
+          grid: { color: 'rgba(191,227,221,0.04)' },
+        },
+      },
+    },
+  });
+}
+
+loadData()
+  .then(rows => {
+    if (!rows.length) throw new Error('Brak danych');
+    renderGauge(rows[rows.length - 1]);
+    renderStatus(rows[rows.length - 1]);
+    renderTable(rows);
+    renderChart(rows);
+  })
+  .catch(err => {
+    document.getElementById('latest-label').textContent = 'Błąd wczytywania danych: ' + err.message;
+  });
+</script>
+
+</body>
+</html>
