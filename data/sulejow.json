@@ -54,6 +54,18 @@
     "rezerwa_aktualna_mln_m3": 14.6,
     "zrodlo_url": "https://www.gov.pl/attachment/23c63c3a-bf61-4d14-a0b3-3b22077234f6"
   },
+    {
+    "data": "2026-04-09",
+    "rzedna_m_npm": 166.54,
+    "poj_aktualna_mln_m3": 74.0,
+    "poj_normalna_mln_m3": 75.1,
+    "napelnienie_procent": 98.5,
+    "doplyw_m3s": 14.3,
+    "odplyw_m3s": 15.0,
+    "rezerwa_aktualna_mln_m3": 10.3,
+    "zrodlo_url": "https://www.gov.pl/attachment/badcd9b0-1fe0-4606-9d52-0a3e0ebffce1"
+  },
+
   {
     "data": "2026-05-18",
     "rzedna_m_npm": 166.55,
