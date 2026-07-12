@@ -214,7 +214,7 @@
       <canvas id="chart" height="260"></canvas>
       <div class="legend-row">
         <span><i class="swatch" style="background:var(--tide)"></i> pojemność aktualna</span>
-        <span><i class="swatch" style="background:var(--caution)"></i> minimum komfortu (60 mln m³)</span>
+        <span><i class="swatch" style="background:var(--caution)"></i> minimum komfortu (65 mln m³)</span>
         <span><i class="swatch" style="background:var(--alert)"></i> poziom krytyczny (45 mln m³)</span>
       </div>
     </div>
@@ -236,7 +236,7 @@
 
 <footer>
   Źródło: <a href="https://www.gov.pl/web/wody-polskie/sytuacja-hydrologiczna" target="_blank" rel="noopener">PGW Wody Polskie — Sytuacja hydrologiczna</a>.
-  Próg krytyczny (45 mln m³) i minimum komfortu (60 mln m³) to wartości robocze ustalone przez autora strony, nie oficjalne progi instrukcji gospodarowania wodą.
+  Próg krytyczny (45 mln m³) i minimum komfortu (65 mln m³) to wartości robocze ustalone przez autora strony, nie oficjalne progi instrukcji gospodarowania wodą.
   <div style="margin-top:0.75rem;">
     <img alt="Liczba wyświetleń" src="https://hits.sh/machmi-pro.github.io/zalew-sulejowski-monitoring.svg?style=flat&label=wy%C5%9Bwietle%C5%84&color=1f8f80" style="border:0;vertical-align:middle;">
   </div>
@@ -244,7 +244,7 @@
 
 <script>
 const CRITICAL = 45;
-const COMFORT = 60;
+const COMFORT = 65;
 const VMAX = 84.3; // pojemność maksymalna zbiornika, do skalowania wskaźnika
 
 async function loadData() {
