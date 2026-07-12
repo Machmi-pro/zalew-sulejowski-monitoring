@@ -1,0 +1,149 @@
+"""
+Pobiera najnowszy komunikat "Informacja o sytuacji hydrologiczno-meteorologicznej"
+publikowany przez PGW Wody Polskie, wyciąga dane dla zbiornika Sulejów (Pilica)
+i dopisuje nowy wiersz do data/sulejow.json (jeśli dana data jeszcze tam nie istnieje).
+
+Uruchamiane automatycznie przez .github/workflows/update-data.yml (cron),
+ale można też odpalić ręcznie:  python scripts/pobierz.py
+"""
+
+import json
+import re
+import sys
+from datetime import datetime
+from pathlib import Path
+
+import requests
+import pdfplumber
+import io
+
+LIST_URL = "https://www.gov.pl/web/wody-polskie/sytuacja-hydrologiczna"
+HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; SulejowMonitor/1.0)"}
+DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "sulejow.json"
+
+# Vnorm (pojemność normalna) używana do liczenia % napełnienia, na wypadek
+# gdyby komunikat go akurat nie zawierał
+VNORM_FALLBACK = 75.1
+
+
+def get_archive_links(html_text: str):
+    """Wyciąga (data, url) z listy komunikatów na stronie Wód Polskich."""
+    pattern = re.compile(
+        r'href="(https://www\.gov\.pl/attachment/[a-f0-9-]+)"[^>]*>\s*'
+        r'(?:Skrócony\s+)?Komunikat[^<]*z\s+dnia\s+(\d{1,2}\.\d{1,2}\.\d{4})',
+        re.IGNORECASE,
+    )
+    results = []
+    for url, date_str in pattern.findall(html_text):
+        try:
+            d = datetime.strptime(date_str, "%d.%m.%Y").date()
+            results.append((d, url))
+        except ValueError:
+            continue
+    # najnowsze najpierw, bez duplikatów dat (bierzemy pierwsze wystąpienie)
+    seen = set()
+    unique = []
+    for d, url in sorted(results, key=lambda x: x[0], reverse=True):
+        if d not in seen:
+            seen.add(d)
+            unique.append((d, url))
+    return unique
+
+
+def extract_sulejow(pdf_bytes: bytes):
+    """Parsuje PDF komunikatu i wyciąga dane dla Zb. Sulejów (Pilica)."""
+    with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
+        full_text = "\n".join(page.extract_text() or "" for page in pdf.pages)
+
+    row = re.search(
+        r"Zb\.\s*Sulejów\s*\n?\s*\(Pilica\)\s*"
+        r"([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+(\d+)",
+        full_text,
+    )
+    rzedna = re.search(
+        r"Zbiorniku Wodnym Sulejów rzędna wody górnej na godz\.\s*[\d:]+\s*UTC wynosiła\s*([\d,]+)",
+        full_text,
+    )
+    if not row:
+        return None
+
+    def f(x):
+        return float(x.replace(",", "."))
+
+    vnorm = f(row.group(4))
+    vakt = f(row.group(3))
+
+    return {
+        "odplyw_m3s": f(row.group(1)),
+        "doplyw_m3s": f(row.group(2)),
+        "poj_aktualna_mln_m3": vakt,
+        "poj_normalna_mln_m3": vnorm,
+        "poj_max_mln_m3": f(row.group(5)),
+        "rezerwa_wymagana_mln_m3": f(row.group(6)),
+        "rezerwa_aktualna_mln_m3": f(row.group(7)),
+        "rezerwa_procent": int(row.group(8)),
+        "rzedna_m_npm": f(rzedna.group(1)) if rzedna else None,
+        "napelnienie_procent": round(vakt / (vnorm or VNORM_FALLBACK) * 100, 1),
+    }
+
+
+def load_existing():
+    if DATA_PATH.exists():
+        return json.loads(DATA_PATH.read_text(encoding="utf-8"))
+    return []
+
+
+def save(entries):
+    DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
+    entries_sorted = sorted(entries, key=lambda e: e["data"])
+    DATA_PATH.write_text(
+        json.dumps(entries_sorted, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+
+def main():
+    existing = load_existing()
+    existing_dates = {e["data"] for e in existing}
+
+    resp = requests.get(LIST_URL, headers=HEADERS, timeout=30)
+    resp.raise_for_status()
+    links = get_archive_links(resp.text)
+
+    if not links:
+        print("Nie znaleziono żadnych linków na stronie listy komunikatów.", file=sys.stderr)
+        sys.exit(1)
+
+    # Sprawdzamy tylko kilka najnowszych dni - jeśli już je mamy, nic nie robimy
+    added = 0
+    for date, url in links[:5]:
+        iso_date = date.isoformat()
+        if iso_date in existing_dates:
+            continue
+        try:
+            pdf_resp = requests.get(url, headers=HEADERS, timeout=30)
+            pdf_resp.raise_for_status()
+            data = extract_sulejow(pdf_resp.content)
+        except Exception as e:
+            print(f"Błąd przy przetwarzaniu {url}: {e}", file=sys.stderr)
+            continue
+
+        if data is None:
+            print(f"Brak danych o Sulejowie w komunikacie z {iso_date}", file=sys.stderr)
+            continue
+
+        data["data"] = iso_date
+        data["zrodlo_url"] = url
+        existing.append(data)
+        existing_dates.add(iso_date)
+        added += 1
+        print(f"Dodano wpis za {iso_date}: pojemność {data['poj_aktualna_mln_m3']} mln m3")
+
+    if added:
+        save(existing)
+        print(f"Zapisano {added} nowych wpisów do {DATA_PATH}")
+    else:
+        print("Brak nowych danych do dodania (wszystko już aktualne).")
+
+
+if __name__ == "__main__":
+    main()
