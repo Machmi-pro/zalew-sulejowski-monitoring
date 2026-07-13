@@ -8,8 +8,10 @@ ale można też odpalić ręcznie:  python scripts/pobierz.py
 """
 
 import json
+import random
 import re
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -18,12 +20,35 @@ import pdfplumber
 import io
 
 LIST_URL = "https://www.gov.pl/web/wody-polskie/sytuacja-hydrologiczna"
-HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; SulejowMonitor/1.0)"}
+
+# Nagłówki wymuszające pominięcie cache (przeglądarek pośredniczących / CDN).
+# Strona gov.pl bywa serwowana ze starej, zcache'owanej kopii (widzieliśmy to
+# wielokrotnie - np. "Materiały" pokazujące plik sprzed 2 miesięcy). Same
+# nagłówki nie dają gwarancji ominięcia CDN-a, ale to najtańsza rzecz do
+# wypróbowania, zanim uznamy, że trzeba ręcznie wklejać linki.
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (compatible; SulejowMonitor/1.0)",
+    "Cache-Control": "no-cache, no-store, must-revalidate",
+    "Pragma": "no-cache",
+    "Expires": "0",
+}
 DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "sulejow.json"
 
 # Vnorm (pojemność normalna) używana do liczenia % napełnienia, na wypadek
 # gdyby komunikat go akurat nie zawierał
 VNORM_FALLBACK = 75.1
+
+
+def fetch_list_page():
+    """
+    Pobiera stronę listy komunikatów, próbując ominąć cache CDN-a.
+    Dokłada losowy parametr w URL (część CDN-ów honoruje query string jako
+    część klucza cache) razem z nagłówkami no-cache.
+    """
+    cache_buster = f"?_cb={int(time.time())}{random.randint(1000, 9999)}"
+    resp = requests.get(LIST_URL + cache_buster, headers=HEADERS, timeout=30)
+    resp.raise_for_status()
+    return resp
 
 
 def get_materialy_link(html_text: str):
@@ -130,8 +155,7 @@ def main():
     existing = load_existing()
     existing_dates = {e["data"] for e in existing}
 
-    resp = requests.get(LIST_URL, headers=HEADERS, timeout=30)
-    resp.raise_for_status()
+    resp = fetch_list_page()
 
     # 1) Najpierw próbujemy sekcji "Materiały" - to zawsze najświeższy plik,
     #    dostępny szybciej niż wpis w archiwum (który bywa opóźniony/cache'owany).
