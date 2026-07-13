@@ -125,7 +125,7 @@ def extract_sulejow(pdf_bytes: bytes):
         full_text,
     )
     rzedna = re.search(
-        r"Zbiorniku Wodnym Sulejów rzędna wody górnej na godz\.\s*[\d:]+\s*UTC wynosiła\s*([\d,]+)",
+        r"Zbiorniku\s+Wodnym\s+Sulejów\s+rzędna\s+wody\s+górnej\s+na\s+godz\.\s*[\d:]+\s*UTC\s+wynosiła\s*([\d,]+)",
         full_text,
     )
     if not row:
