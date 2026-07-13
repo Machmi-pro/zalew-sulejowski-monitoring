@@ -57,11 +57,20 @@ def get_materialy_link(html_text: str):
     (nazwany "Sytuacja_hydrologiczna_YYYY-MM-DD"), inny format niż wpisy
     w "Archiwalnych komunikatach". To najszybszy sposób na dane z bieżącego dnia,
     bez czekania aż trafią do archiwum.
+
+    UWAGA (odkryte empirycznie 2026-07-13 przez diagnostykę w main()):
+    - href bywa WZGLĘDNY (np. "/attachment/xxxx"), nie zawsze pełny URL
+    - separator między słowami to dosłowna encja HTML "&#8203;" (7 znaków
+      tekstu: &#8203;), NIE prawdziwy znak unicode U+200B - bo strona nie jest
+      tu jeszcze zdekodowana przez parser HTML, tylko przetwarzana jako surowy
+      tekst przez requests/regex.
     """
-    # Usuń niewidoczne znaki (zero-width space itp.), które gov.pl wstawia w tekst
-    clean = re.sub(r"[\u200b\u200c\u200d\ufeff]", "", html_text)
+    # Usuń niewidoczne znaki - zarówno dosłowną encję HTML "&#8203;" (i pokrewne),
+    # jak i prawdziwe znaki unicode zero-width, na wszelki wypadek gdyby się
+    # kiedyś pojawiły w innej formie.
+    clean = re.sub(r"&#8203;|&#x200[bcd];|[\u200b\u200c\u200d\ufeff]", "", html_text, flags=re.IGNORECASE)
     pattern = re.compile(
-        r'href="(https://www\.gov\.pl/attachment/[a-f0-9-]+)"[^>]*>\s*'
+        r'href="((?:https://www\.gov\.pl)?/attachment/[a-f0-9-]+)"[^>]*>\s*'
         r'Sytuacja[_\s]*hydrologiczna[_\s]*(\d{4}-\d{2}-\d{2})',
         re.IGNORECASE,
     )
@@ -69,6 +78,8 @@ def get_materialy_link(html_text: str):
     if not match:
         return None
     url, date_str = match.group(1), match.group(2)
+    if url.startswith("/"):
+        url = "https://www.gov.pl" + url
     try:
         d = datetime.strptime(date_str, "%Y-%m-%d").date()
     except ValueError:
