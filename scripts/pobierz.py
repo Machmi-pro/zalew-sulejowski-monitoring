@@ -126,6 +126,13 @@ def extract_sulejow(pdf_bytes: bytes):
         full_text,
     )
     if not row:
+        idx = full_text.find("Sulejów")
+        if idx != -1:
+            print(f"[DIAGNOSTYKA] Regex nie złapał wiersza Sulejowa. "
+                  f"Fragment tekstu z pdfplumber wokół 'Sulejów' (repr, 200 znaków):")
+            print(repr(full_text[max(0, idx - 30):idx + 170]))
+        else:
+            print("[DIAGNOSTYKA] Słowo 'Sulejów' w ogóle nie występuje w tekście z pdfplumber.")
         return None
 
     def f(x):
