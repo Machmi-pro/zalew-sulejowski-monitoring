@@ -164,6 +164,17 @@ def main():
     # 2) Uzupełniamy o listę archiwalną (dla nadrobienia zaległych dni)
     archive_links = get_archive_links(resp.text)
 
+    # DIAGNOSTYKA: jeśli regex "Materiały" nie trafił, wypisz surowy fragment
+    # HTML wokół tego nagłówka, żeby zobaczyć jak faktycznie wygląda znacznik.
+    if not materialy:
+        idx = resp.text.find("Materia")
+        if idx != -1:
+            fragment = resp.text[idx:idx + 500]
+            print("[DIAGNOSTYKA] Surowy fragment HTML wokół 'Materiały' (pierwsze 500 znaków):")
+            print(repr(fragment))
+        else:
+            print("[DIAGNOSTYKA] Słowo 'Materia' w ogóle nie występuje w pobranej stronie.")
+
     links = []
     if materialy:
         print(f"[DIAGNOSTYKA] Sekcja 'Materiały' wskazuje na: data={materialy[0].isoformat()}, url={materialy[1]}")
