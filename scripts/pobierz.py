@@ -166,6 +166,20 @@ def main():
 
     links = []
     if materialy:
+        print(f"[DIAGNOSTYKA] Sekcja 'Materiały' wskazuje na: data={materialy[0].isoformat()}, url={materialy[1]}")
+    else:
+        print("[DIAGNOSTYKA] Nie znaleziono linku w sekcji 'Materiały' (regex nie trafił).")
+
+    if archive_links:
+        najnowszy_archiwalny = archive_links[0]
+        print(f"[DIAGNOSTYKA] Najnowszy wpis w archiwum: data={najnowszy_archiwalny[0].isoformat()}, url={najnowszy_archiwalny[1]}")
+    else:
+        print("[DIAGNOSTYKA] Nie znaleziono żadnych linków archiwalnych.")
+
+    print(f"[DIAGNOSTYKA] Najnowsza data już zapisana w sulejow.json: "
+          f"{max(existing_dates) if existing_dates else 'brak danych'}")
+
+    if materialy:
         links.append(materialy)
     for d, url in archive_links:
         if not links or d != links[0][0]:
@@ -180,6 +194,7 @@ def main():
     for date, url in links[:5]:
         iso_date = date.isoformat()
         if iso_date in existing_dates:
+            print(f"[DIAGNOSTYKA] Data {iso_date} już jest w danych - pomijam.")
             continue
         try:
             pdf_resp = requests.get(url, headers=HEADERS, timeout=30)
