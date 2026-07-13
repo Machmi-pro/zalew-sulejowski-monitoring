@@ -165,15 +165,19 @@ def main():
     archive_links = get_archive_links(resp.text)
 
     # DIAGNOSTYKA: jeśli regex "Materiały" nie trafił, wypisz surowy fragment
-    # HTML wokół tego nagłówka, żeby zobaczyć jak faktycznie wygląda znacznik.
+    # HTML zaraz po nagłówku "Aktualna sytuacja hydrologiczno-meteorologiczna" -
+    # to unikalny punkt zaczepienia tuż przed właściwą sekcją "Materiały"
+    # (w odróżnieniu od "Materiały do pobrania" w menu nawigacyjnym).
     if not materialy:
-        idx = resp.text.find("Materia")
+        clean_for_search = re.sub(r"[\u200b\u200c\u200d\ufeff]", "", resp.text)
+        kotwica = "Aktualna sytuacja hydrologiczno-meteorologiczna"
+        idx = clean_for_search.find(kotwica)
         if idx != -1:
-            fragment = resp.text[idx:idx + 500]
-            print("[DIAGNOSTYKA] Surowy fragment HTML wokół 'Materiały' (pierwsze 500 znaków):")
+            fragment = clean_for_search[idx:idx + 800]
+            print(f"[DIAGNOSTYKA] Fragment HTML po kotwicy '{kotwica}':")
             print(repr(fragment))
         else:
-            print("[DIAGNOSTYKA] Słowo 'Materia' w ogóle nie występuje w pobranej stronie.")
+            print(f"[DIAGNOSTYKA] Nie znaleziono kotwicy '{kotwica}' na stronie.")
 
     links = []
     if materialy:
