@@ -117,8 +117,11 @@ def extract_sulejow(pdf_bytes: bytes):
         full_text = "\n".join(page.extract_text() or "" for page in pdf.pages)
 
     row = re.search(
-        r"Zb\.\s*Sulejów\s*\n?\s*\(Pilica\)\s*"
-        r"([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+(\d+)",
+        r"Zb\.\s*Sulejów\s*"
+        r"(?:\n?\s*\(Pilica\)\s*)?"      # wariant A: "(Pilica)" zaraz po nazwie (stary układ PDF)
+        r"(?:\d+\s+)?"                   # opcjonalny numer wiersza tabeli (widziany w nowym układzie)
+        r"([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+(\d+)"
+        r"(?:\s*\n?\s*\(Pilica\))?",     # wariant B: "(Pilica)" po liczbach (nowy układ PDF, odkryty 2026-07-13)
         full_text,
     )
     rzedna = re.search(
