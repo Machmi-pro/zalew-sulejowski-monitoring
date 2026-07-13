@@ -126,13 +126,22 @@ def extract_sulejow(pdf_bytes: bytes):
         full_text,
     )
     if not row:
-        idx = full_text.find("Sulejów")
-        if idx != -1:
-            print(f"[DIAGNOSTYKA] Regex nie złapał wiersza Sulejowa. "
-                  f"Fragment tekstu z pdfplumber wokół 'Sulejów' (repr, 200 znaków):")
-            print(repr(full_text[max(0, idx - 30):idx + 170]))
+        # Szukamy właściwego wiersza w tabeli ("Zb. Sulejów" z wielkiej litery),
+        # a nie wzmianek w liście ostrzeżeń suszowych ("zb. Sulejów" z małej,
+        # w tekście typu "Pilica do zb. Sulejów – obowiązuje od...").
+        matches = list(re.finditer(r"Zb\.\s*Sulejów", full_text))
+        if matches:
+            for n, m in enumerate(matches):
+                idx = m.start()
+                print(f"[DIAGNOSTYKA] Wystąpienie #{n+1} 'Zb. Sulejów' (wielka litera), "
+                      f"fragment (repr, 250 znaków):")
+                print(repr(full_text[idx:idx + 250]))
         else:
-            print("[DIAGNOSTYKA] Słowo 'Sulejów' w ogóle nie występuje w tekście z pdfplumber.")
+            print("[DIAGNOSTYKA] Nie znaleziono 'Zb. Sulejów' (wielka litera) w tekście z pdfplumber - "
+                  "sprawdzam małą literę jako fallback diagnostyczny:")
+            idx2 = full_text.lower().find("sulejów")
+            if idx2 != -1:
+                print(repr(full_text[max(0, idx2 - 30):idx2 + 170]))
         return None
 
     def f(x):
