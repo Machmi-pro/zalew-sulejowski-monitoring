@@ -198,11 +198,11 @@
     flex-wrap:wrap; gap:0.6rem; margin-bottom:1.1rem;
   }
   .kap-place{ font-size:0.85rem; color:var(--ink-dim); margin:0.3rem 0 0; }
-  .kap-metrics{
-    display:flex; gap:1.9rem; flex-wrap:wrap;
-    margin-bottom:1.25rem; padding-bottom:1.25rem;
+  .kap-metrics-wrap{
+    margin-bottom:1.1rem; padding-bottom:1.1rem;
     border-bottom:1px solid var(--panel-border);
   }
+  .kap-metrics{ display:flex; gap:1.9rem; flex-wrap:wrap; }
   .kap-metric{ display:flex; flex-direction:column; gap:0.2rem; }
   .kap-metric .value{ font-size:1.4rem; color:var(--ink); line-height:1; }
   .kap-metric .value span{ font-size:0.78rem; color:var(--ink-dim); margin-left:0.15rem; }
@@ -210,6 +210,26 @@
     font-family:'SF Mono','Menlo',monospace; font-size:0.62rem;
     letter-spacing:0.03em; text-transform:uppercase; color:var(--ink-dim);
   }
+  .kap-source{
+    margin:0.9rem 0 0; font-size:0.74rem; color:var(--ink-dim);
+    font-family:'SF Mono','Menlo',monospace;
+  }
+  .kap-source a{ color:var(--tide); }
+
+  .kap-history-toggle{
+    display:inline-flex; align-items:center; gap:0.4rem;
+    background:none; border:1px solid var(--panel-border); border-radius:99px;
+    padding:0.4rem 0.9rem;
+    font-family:'SF Mono','Menlo',monospace; font-size:0.72rem; letter-spacing:0.02em;
+    color:var(--tide); cursor:pointer; transition: background .15s, color .15s;
+  }
+  .kap-history-toggle:hover{ background: var(--bg-soft); }
+  .kap-history-arrow{ display:inline-block; transition: transform .2s ease; }
+  .kap-history-toggle.open .kap-history-arrow{ transform: rotate(180deg); }
+
+  .kap-history-wrap{ margin-top:1rem; }
+  .kap-history-wrap[hidden]{ display:none; }
+
   /* wiersze tabeli ocen - reużywają Twojej istniejącej logiki below-comfort/below-critical,
      więc dziedziczą też mobilny card-view z @media (max-width:640px) powyżej */
   tr.kap-bad td{ color:var(--alert); font-weight:700; }
@@ -261,16 +281,25 @@
         <p class="updated-note" id="kap-updated"></p>
       </div>
 
-      <div class="kap-metrics" id="kap-metrics">
-        <!-- generowane w JS: temp. wody / temp. powietrza / wiatr -->
+      <div class="kap-metrics-wrap">
+        <div class="kap-metrics" id="kap-metrics">
+          <!-- generowane w JS: temp. wody / temp. powietrza / wiatr -->
+        </div>
+        <p class="kap-source" id="kap-source"></p>
       </div>
 
-      <table>
-        <thead>
-          <tr><th>Data</th><th>Ocena</th><th>E. coli</th><th>Enterokoki</th></tr>
-        </thead>
-        <tbody id="kap-table-body"></tbody>
-      </table>
+      <button type="button" class="kap-history-toggle" id="kap-history-toggle" aria-expanded="false">
+        Pokaż historię ocen <span class="kap-history-arrow">▾</span>
+      </button>
+
+      <div class="kap-history-wrap" id="kap-history-wrap" hidden>
+        <table>
+          <thead>
+            <tr><th>Data</th><th>Ocena</th><th>E. coli</th><th>Enterokoki</th></tr>
+          </thead>
+          <tbody id="kap-table-body"></tbody>
+        </table>
+      </div>
     </div>
   </section>
   <!-- =================== /NOWA SEKCJA: warunki kąpieliskowe ===================== -->
@@ -568,6 +597,27 @@ function renderKapMetrics(warunki) {
     metric(warunki.wiatr_ms, ' m/s', 'Wiatr');
 }
 
+function renderKapSource(zrodloUrl) {
+  const el = document.getElementById('kap-source');
+  if (zrodloUrl) {
+    el.innerHTML = 'Źródło: <a href="' + zrodloUrl + '" target="_blank" rel="noopener">Serwis Kąpieliskowy GIS ↗</a>';
+  } else {
+    el.textContent = 'Źródło: Serwis Kąpieliskowy GIS (sk.gis.gov.pl)';
+  }
+}
+
+function initKapHistoryToggle() {
+  const btn = document.getElementById('kap-history-toggle');
+  const wrap = document.getElementById('kap-history-wrap');
+  btn.addEventListener('click', () => {
+    const otwarte = !wrap.hidden;
+    wrap.hidden = otwarte;
+    btn.classList.toggle('open', !otwarte);
+    btn.setAttribute('aria-expanded', String(!otwarte));
+    btn.childNodes[0].textContent = otwarte ? 'Pokaż historię ocen ' : 'Ukryj historię ocen ';
+  });
+}
+
 function renderKapUpdated(warunki, ocena) {
   const el = document.getElementById('kap-updated');
   let txt = warunki.data_pomiaru ? `Pomiar: ${warunki.data_pomiaru}` : '';
@@ -614,6 +664,8 @@ loadKapielisko().then(dane => {
   renderKapBadge(dane.ocena_aktualna);
   renderKapMetrics(dane.warunki);
   renderKapUpdated(dane.warunki, dane.ocena_aktualna);
+  renderKapSource(dane.zrodlo_url);
+  initKapHistoryToggle();
 
   const najnowszyRok = initKapSeasonToggle(dane.sezony, renderKapTable);
   renderKapTable(dane.sezony[najnowszyRok] || []);
