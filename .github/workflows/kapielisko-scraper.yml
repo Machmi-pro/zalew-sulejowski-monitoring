@@ -10,7 +10,7 @@ name: Aktualizacja danych kąpieliska
 
 on:
   schedule:
-    - cron: '0 11 * * 1-5'   # pon-pt, 11:00 UTC (~13:00 czasu PL latem)
+    - cron: '0 10 * * 1-5'   # pon-pt, 11:00 UTC (~13:00 czasu PL latem)
   workflow_dispatch: {}       # przycisk "Run workflow" w zakladce Actions
 
 permissions:
@@ -35,9 +35,6 @@ jobs:
       - name: Uruchom scraper kapieliska
         run: python scripts/pobierz_kapielisko.py
 
-        # jesli skrypt siedzi w podfolderze, np. scripts/, zmien na:
-        # run: python scripts/pobierz_kapielisko.py
-
       - name: Commit i push zmian w data/
         run: |
           git config user.name "github-actions[bot]"
@@ -47,5 +44,6 @@ jobs:
             echo "Brak zmian w danych kapieliska - pomijam commit."
           else
             git commit -m "Aktualizacja danych kapieliska (auto)"
+            git pull --rebase origin main
             git push
           fi
