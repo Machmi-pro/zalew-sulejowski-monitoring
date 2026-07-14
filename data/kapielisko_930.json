@@ -1,0 +1,278 @@
+{
+  "kapielisko_id": 930,
+  "nazwa": "Kapielisko na sztucznym zbiorniku rzeki Pilicy (Zalew Sulejowski)",
+  "zrodlo_url": "https://sk.gis.gov.pl/kapielisko/930",
+  "pobrano_utc": "2026-07-14T05:29:18+00:00",
+  "warunki": {
+    "temp_wody_c": 4.0,
+    "temp_powietrza_c": 20.0,
+    "wiatr_ms": 4.0,
+    "data_pomiaru": null
+  },
+  "ocena_aktualna": {
+    "ocena_tekst": "Woda przydatna do kąpieli",
+    "przydatna": true,
+    "data_oceny": "2026-06-25",
+    "nastepne_badanie": "2026-07-13"
+  },
+  "alert": {
+    "poziom": "ok",
+    "komunikat": "Woda przydatna do kapieli"
+  },
+  "sezony": {
+    "2026": [
+      {
+        "data_oceny": "2026-06-25",
+        "ocena": "Woda przydatna do kąpieli",
+        "przyczyna": null,
+        "e_coli": 15.0,
+        "enterokoki": 0.0,
+        "nastepne_badanie": "2026-07-13"
+      }
+    ],
+    "2025": [
+      {
+        "data_oceny": "2025-08-24",
+        "ocena": "Woda nieprzydatna do kąpieli",
+        "przyczyna": "Zakwit sinic",
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": null
+      },
+      {
+        "data_oceny": "2025-08-22",
+        "ocena": "Woda przydatna do kąpieli",
+        "przyczyna": null,
+        "e_coli": 61.0,
+        "enterokoki": 21.0,
+        "nastepne_badanie": null
+      },
+      {
+        "data_oceny": "2025-08-20",
+        "ocena": "Woda nieprzydatna do kąpieli",
+        "przyczyna": "Enterokoki Zakwit sinic",
+        "e_coli": 5.0,
+        "enterokoki": 770.0,
+        "nastepne_badanie": "2025-08-19"
+      },
+      {
+        "data_oceny": "2025-08-07",
+        "ocena": "Woda nieprzydatna do kąpieli",
+        "przyczyna": "Enterokoki Zakwit sinic",
+        "e_coli": 100.0,
+        "enterokoki": 1300.0,
+        "nastepne_badanie": "2025-08-11"
+      },
+      {
+        "data_oceny": "2025-08-06",
+        "ocena": "Woda nieprzydatna do kąpieli",
+        "przyczyna": "Zakwit sinic",
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": "2025-08-11"
+      },
+      {
+        "data_oceny": "2025-08-05",
+        "ocena": "Woda przydatna do kąpieli",
+        "przyczyna": null,
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": "2025-08-11"
+      },
+      {
+        "data_oceny": "2025-08-02",
+        "ocena": "Woda nieprzydatna do kąpieli",
+        "przyczyna": "Zakwit sinic",
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": "2025-08-11"
+      },
+      {
+        "data_oceny": "2025-08-01",
+        "ocena": "Woda przydatna do kąpieli",
+        "przyczyna": null,
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": "2025-08-11"
+      },
+      {
+        "data_oceny": "2025-07-30",
+        "ocena": "Woda nieprzydatna do kąpieli",
+        "przyczyna": "Zakwit sinic",
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": "2025-08-11"
+      },
+      {
+        "data_oceny": "2025-07-28",
+        "ocena": "Woda przydatna do kąpieli",
+        "przyczyna": null,
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": "2025-07-28"
+      },
+      {
+        "data_oceny": "2025-07-25",
+        "ocena": "Woda nieprzydatna do kąpieli",
+        "przyczyna": "Zakwit sinic",
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": "2025-07-28"
+      },
+      {
+        "data_oceny": "2025-07-24",
+        "ocena": "Woda przydatna do kąpieli",
+        "przyczyna": null,
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": "2025-07-28"
+      },
+      {
+        "data_oceny": "2025-07-11",
+        "ocena": "Woda nieprzydatna do kąpieli",
+        "przyczyna": null,
+        "e_coli": 1.0,
+        "enterokoki": 1.0,
+        "nastepne_badanie": "2025-07-28"
+      },
+      {
+        "data_oceny": "2025-07-10",
+        "ocena": "Woda nieprzydatna do kąpieli",
+        "przyczyna": "Zakwit sinic",
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": "2025-07-07"
+      },
+      {
+        "data_oceny": "2025-07-03",
+        "ocena": "Woda przydatna do kąpieli",
+        "przyczyna": null,
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": "2025-07-07"
+      },
+      {
+        "data_oceny": "2025-07-01",
+        "ocena": "Woda nieprzydatna do kąpieli",
+        "przyczyna": "Zakwit sinic",
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": "2025-07-07"
+      },
+      {
+        "data_oceny": "2025-06-30",
+        "ocena": "Woda przydatna do kąpieli",
+        "przyczyna": null,
+        "e_coli": 30.0,
+        "enterokoki": 10.0,
+        "nastepne_badanie": "2025-07-07"
+      }
+    ],
+    "2024": [
+      {
+        "data_oceny": "2024-08-16",
+        "ocena": "Woda nieprzydatna do kąpieli",
+        "przyczyna": "Zakwit sinic",
+        "e_coli": 200.0,
+        "enterokoki": 6.0,
+        "nastepne_badanie": null
+      },
+      {
+        "data_oceny": "2024-08-15",
+        "ocena": "Woda przydatna do kąpieli",
+        "przyczyna": null,
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": null
+      },
+      {
+        "data_oceny": "2024-08-05",
+        "ocena": "Woda nieprzydatna do kąpieli",
+        "przyczyna": "Zakwit sinic",
+        "e_coli": 500.0,
+        "enterokoki": 12.0,
+        "nastepne_badanie": "2024-08-12"
+      },
+      {
+        "data_oceny": "2024-08-03",
+        "ocena": "Woda przydatna do kąpieli",
+        "przyczyna": null,
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": "2024-08-12"
+      },
+      {
+        "data_oceny": "2024-07-25",
+        "ocena": "Woda nieprzydatna do kąpieli",
+        "przyczyna": "Zakwit sinic",
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": "2024-07-29"
+      },
+      {
+        "data_oceny": "2024-07-20",
+        "ocena": "Woda przydatna do kąpieli",
+        "przyczyna": null,
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": "2024-07-29"
+      },
+      {
+        "data_oceny": "2024-07-18",
+        "ocena": "Woda nieprzydatna do kąpieli",
+        "przyczyna": "Zakwit sinic",
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": "2024-07-29"
+      },
+      {
+        "data_oceny": "2024-07-17",
+        "ocena": "Woda przydatna do kąpieli",
+        "przyczyna": null,
+        "e_coli": 1.0,
+        "enterokoki": 5.0,
+        "nastepne_badanie": "2024-07-29"
+      },
+      {
+        "data_oceny": "2024-07-09",
+        "ocena": "Woda przydatna do kąpieli",
+        "przyczyna": null,
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": "2024-07-08"
+      },
+      {
+        "data_oceny": "2024-07-08",
+        "ocena": "Woda nieprzydatna do kąpieli",
+        "przyczyna": "Zakwit sinic",
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": "2024-07-08"
+      },
+      {
+        "data_oceny": "2024-07-05",
+        "ocena": "Woda przydatna do kąpieli",
+        "przyczyna": null,
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": "2024-07-08"
+      },
+      {
+        "data_oceny": "2024-07-04",
+        "ocena": "Woda nieprzydatna do kąpieli",
+        "przyczyna": "Zakwit sinic",
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": "2024-07-08"
+      },
+      {
+        "data_oceny": "2024-06-27",
+        "ocena": "Woda przydatna do kąpieli",
+        "przyczyna": null,
+        "e_coli": 45.0,
+        "enterokoki": 1.0,
+        "nastepne_badanie": "2024-07-08"
+      }
+    ]
+  }
+}
