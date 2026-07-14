@@ -3,10 +3,9 @@ name: Aktualizacja danych zbiornika Sulejów
 on:
   schedule:
     # UWAGA: godzina jest w UTC!
-    # 0 8 * * *  -> 08:00 UTC = 10:00 czasu polskiego (CEST, lato) / 09:00 (CET, zima)
-    # Zmień pierwsze dwie liczby (minuta godzina), żeby ustawić inną porę.
-    - cron: '0 11 * * *'
-  workflow_dispatch: {}   # pozwala też uruchomić ręcznie z zakładki "Actions"
+    # 0 11 * * * -> 11:00 UTC = 13:00 czasu polskiego (CEST, lato) / 12:00 (CET, zima)
+    - cron: '0 10 * * *'
+  workflow_dispatch: {}
 
 permissions:
   contents: write
@@ -35,4 +34,5 @@ jobs:
           git config user.email "sulejow-bot@users.noreply.github.com"
           git add data/sulejow.json
           git diff --quiet --cached || git commit -m "Automatyczna aktualizacja danych zbiornika Sulejów"
+          git pull --rebase origin main
           git push
