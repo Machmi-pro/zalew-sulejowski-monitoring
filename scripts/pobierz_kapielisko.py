@@ -32,13 +32,18 @@ from bs4 import BeautifulSoup
 
 KAPIELISKO_ID = 930
 URL = f"https://sk.gis.gov.pl/kapielisko/{KAPIELISKO_ID}"
-# Zapis do data/kapielisko_930.json, obok istniejącego data/sulejow.json w repo
-OUTPUT_PATH = Path(__file__).parent / "data" / f"kapielisko_{KAPIELISKO_ID}.json"
+# Zapis do data/kapielisko_930.json w KORZENIU repo - obok istniejącego
+# data/sulejow.json. Uwaga: uzywamy Path.cwd() (katalog roboczy), a NIE
+# Path(__file__).parent, bo skrypt moze leziec w scripts/ - a GitHub Actions
+# (i normalne uruchomienie "python scripts/pobierz_kapielisko.py" z roota repo)
+# ustawia katalog roboczy na korzen repo. Path(__file__).parent dawal wtedy
+# scripts/data/... co bylo przyczyna bledu "brak zmian" w workflow.
+OUTPUT_PATH = Path.cwd() / "data" / f"kapielisko_{KAPIELISKO_ID}.json"
 
 # Jesli True, kazdy odczyt jest doklejany do lokalnej historii pomiarow
 # pogodowych (osobno od historii ocen wody, ktora GIS trzyma sam).
 ARCHIWIZUJ_HISTORIE = True
-HISTORIA_PATH = Path(__file__).parent / f"kapielisko_{KAPIELISKO_ID}_historia_pomiarow.jsonl"
+HISTORIA_PATH = Path.cwd() / "data" / f"kapielisko_{KAPIELISKO_ID}_historia_pomiarow.jsonl"
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (compatible; ZbiornikSulejowskiMonitor/1.0; "
