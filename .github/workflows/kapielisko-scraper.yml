@@ -1,0 +1,50 @@
+name: Aktualizacja danych kąpieliska
+
+# Zalozenia (dopasuj jesli Twoj istniejacy workflow dla poziomu wody dziala inaczej):
+# - harmonogram: codziennie o 13:00 czasu polskiego, bez weekendow
+#   (godziny w cron sa w UTC: latem UTC+2, zima UTC+1 -> uzywamy 11:00 UTC,
+#    co odpowiada 13:00 czasu letniego; zima wyjdzie 12:00 - drobna roznica,
+#    do ew. korekty jesli zalezy Ci na precyzji)
+# - mozliwosc recznego odpalenia z zakladki Actions (workflow_dispatch)
+# - commit tylko jesli plik danych faktycznie sie zmienil
+
+on:
+  schedule:
+    - cron: '0 11 * * 1-5'   # pon-pt, 11:00 UTC (~13:00 czasu PL latem)
+  workflow_dispatch: {}       # przycisk "Run workflow" w zakladce Actions
+
+permissions:
+  contents: write
+
+jobs:
+  pobierz-kapielisko:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Ustaw Pythona
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Zainstaluj zaleznosci
+        run: pip install requests beautifulsoup4
+
+      - name: Uruchom scraper kapieliska
+        run: python pobierz_kapielisko.py
+        # jesli skrypt siedzi w podfolderze, np. scripts/, zmien na:
+        # run: python scripts/pobierz_kapielisko.py
+
+      - name: Commit i push zmian w data/
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/kapielisko_930.json data/kapielisko_930_historia_pomiarow.jsonl 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "Brak zmian w danych kapieliska - pomijam commit."
+          else
+            git commit -m "Aktualizacja danych kapieliska (auto)"
+            git push
+          fi
