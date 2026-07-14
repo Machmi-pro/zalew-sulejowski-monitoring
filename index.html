@@ -191,6 +191,30 @@
     .status-panel{ grid-template-columns: 70px 1fr; gap:1rem; padding:1.1rem;}
     .gauge{ height:150px; width:30px; }
   }
+
+  /* --- NOWE: sekcja warunków kąpieliskowych --- */
+  .kap-top{
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:0.6rem; margin-bottom:1.1rem;
+  }
+  .kap-place{ font-size:0.85rem; color:var(--ink-dim); margin:0.3rem 0 0; }
+  .kap-metrics{
+    display:flex; gap:1.9rem; flex-wrap:wrap;
+    margin-bottom:1.25rem; padding-bottom:1.25rem;
+    border-bottom:1px solid var(--panel-border);
+  }
+  .kap-metric{ display:flex; flex-direction:column; gap:0.2rem; }
+  .kap-metric .value{ font-size:1.4rem; color:var(--ink); line-height:1; }
+  .kap-metric .value span{ font-size:0.78rem; color:var(--ink-dim); margin-left:0.15rem; }
+  .kap-metric .label{
+    font-family:'SF Mono','Menlo',monospace; font-size:0.62rem;
+    letter-spacing:0.03em; text-transform:uppercase; color:var(--ink-dim);
+  }
+  /* wiersze tabeli ocen - reużywają Twojej istniejącej logiki below-comfort/below-critical,
+     więc dziedziczą też mobilny card-view z @media (max-width:640px) powyżej */
+  tr.kap-bad td{ color:var(--alert); font-weight:700; }
+  tr.kap-bad{ background: var(--alert-bg); }
+  tr.kap-ok td{ color:var(--ink); }
 </style>
 </head>
 <body>
@@ -220,6 +244,36 @@
       <p class="updated-note" id="updated-note"></p>
     </div>
   </div>
+
+  <!-- ===================== NOWA SEKCJA: warunki kąpieliskowe ===================== -->
+  <section id="kapielisko-section">
+    <h2>Warunki kąpieliskowe
+      <span class="range-toggle" id="kap-season-toggle">
+        <!-- przyciski lat (2026 / 2025 / 2024...) generowane w JS -->
+      </span>
+    </h2>
+    <div class="chart-card">
+      <div class="kap-top">
+        <div>
+          <div class="status-badge" id="kap-badge">sprawdzam</div>
+          <p class="kap-place">Smardzewice — Zalew Sulejowski</p>
+        </div>
+        <p class="updated-note" id="kap-updated"></p>
+      </div>
+
+      <div class="kap-metrics" id="kap-metrics">
+        <!-- generowane w JS: temp. wody / temp. powietrza / wiatr -->
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Data</th><th>Ocena</th><th>E. coli</th><th>Enterokoki</th></tr>
+        </thead>
+        <tbody id="kap-table-body"></tbody>
+      </table>
+    </div>
+  </section>
+  <!-- =================== /NOWA SEKCJA: warunki kąpieliskowe ===================== -->
 
   <section>
     <h2>Pojemność w czasie
@@ -471,6 +525,99 @@ loadData()
   .catch(err => {
     document.getElementById('latest-label').textContent = 'Błąd wczytywania danych: ' + err.message;
   });
+
+/* ===================== NOWE: warunki kąpieliskowe ===================== */
+const KAP_CRITICAL_LABEL = 'nieprzydatna';
+
+async function loadKapielisko() {
+  try {
+    const res = await fetch('data/kapielisko_930.json?_=' + Date.now());
+    if (!res.ok) throw new Error('brak pliku danych kąpieliska');
+    return res.json();
+  } catch (err) {
+    document.getElementById('kap-badge').textContent = 'brak danych';
+    console.warn('Kąpielisko: nie udało się wczytać danych —', err.message);
+    return null;
+  }
+}
+
+function renderKapBadge(ocena) {
+  const badge = document.getElementById('kap-badge');
+  if (ocena.przydatna === true) {
+    badge.textContent = 'przydatna';
+    badge.style.color = 'var(--tide)';
+  } else if (ocena.przydatna === false) {
+    badge.textContent = 'nieprzydatna';
+    badge.style.color = 'var(--alert)';
+  } else {
+    badge.textContent = 'brak oceny';
+    badge.style.color = 'var(--ink-dim)';
+  }
+}
+
+function renderKapMetrics(warunki) {
+  const el = document.getElementById('kap-metrics');
+  const metric = (value, unit, label) => `
+    <div class="kap-metric">
+      <div class="value">${value ?? '—'}<span>${unit}</span></div>
+      <div class="label">${label}</div>
+    </div>`;
+  el.innerHTML =
+    metric(warunki.temp_wody_c, '°C', 'Temp. wody') +
+    metric(warunki.temp_powietrza_c, '°C', 'Temp. powietrza') +
+    metric(warunki.wiatr_ms, ' m/s', 'Wiatr');
+}
+
+function renderKapUpdated(warunki, ocena) {
+  const el = document.getElementById('kap-updated');
+  let txt = warunki.data_pomiaru ? `Pomiar: ${warunki.data_pomiaru}` : '';
+  if (ocena.data_oceny) txt += (txt ? ' · ' : '') + `Ocena: ${ocena.data_oceny}`;
+  if (ocena.nastepne_badanie) txt += ` · kolejne badanie ${ocena.nastepne_badanie}`;
+  el.textContent = txt;
+}
+
+function renderKapTable(rows) {
+  const tbody = document.getElementById('kap-table-body');
+  tbody.innerHTML = '';
+  rows.forEach(r => {
+    const zla = (r.ocena || '').toLowerCase().includes(KAP_CRITICAL_LABEL);
+    const tr = document.createElement('tr');
+    tr.className = zla ? 'kap-bad' : 'kap-ok';
+    const ocenaTxt = r.przyczyna ? `${r.ocena} — ${r.przyczyna}` : (r.ocena || '—');
+    tr.innerHTML =
+      `<td data-label="Data">${r.data_oceny ?? '—'}</td>` +
+      `<td data-label="Ocena">${ocenaTxt}</td>` +
+      `<td data-label="E. coli">${r.e_coli ?? '—'}</td>` +
+      `<td data-label="Enterokoki">${r.enterokoki ?? '—'}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function initKapSeasonToggle(sezony, onSelect) {
+  const wrap = document.getElementById('kap-season-toggle');
+  const lata = Object.keys(sezony).sort((a, b) => b - a); // najnowszy first
+  wrap.innerHTML = lata.map((rok, i) =>
+    `<button type="button" class="range-btn${i === 0 ? ' active' : ''}" data-rok="${rok}">${rok}</button>`
+  ).join('');
+  wrap.querySelectorAll('.range-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      wrap.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      onSelect(sezony[btn.dataset.rok] || []);
+    });
+  });
+  return lata[0];
+}
+
+loadKapielisko().then(dane => {
+  if (!dane) return;
+  renderKapBadge(dane.ocena_aktualna);
+  renderKapMetrics(dane.warunki);
+  renderKapUpdated(dane.warunki, dane.ocena_aktualna);
+
+  const najnowszyRok = initKapSeasonToggle(dane.sezony, renderKapTable);
+  renderKapTable(dane.sezony[najnowszyRok] || []);
+});
 </script>
 
 </body>
