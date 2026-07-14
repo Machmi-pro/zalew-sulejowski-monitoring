@@ -58,30 +58,6 @@ def pobierz_html(url: str) -> str:
     return resp.text
 
 
-def _text_after_label(soup: BeautifulSoup, label: str):
-    """Znajduje element zawierajacy dokladnie dana etykiete (np. 'Temperatura wody:')
-    i zwraca tekst nastepnego sasiedniego elementu / wezla tekstowego."""
-    node = soup.find(string=re.compile(re.escape(label)))
-    if node is None:
-        return None
-    # tekst czesto siedzi w kolejnym elemencie rodzenstwa albo w tym samym bloku
-    parent = node.parent
-    # sprobuj nastepnego rodzenstwa z tekstem
-    sib = parent.find_next_sibling()
-    if sib and sib.get_text(strip=True):
-        return sib.get_text(strip=True)
-    # sprobuj tekstu bezposrednio po etykiecie w tym samym bloku nadrzednym
-    full_text = parent.get_text(" ", strip=True)
-    m = re.search(re.escape(label) + r"\s*(.+)", full_text)
-    if m:
-        val = m.group(1).strip()
-        if val:
-            return val
-    # ostatecznie: nastepny element w drzewie po wezle tekstowym
-    nxt = node.find_next(string=True)
-    return nxt.strip() if nxt else None
-
-
 def _extract_number(text):
     if text is None:
         return None
@@ -91,13 +67,47 @@ def _extract_number(text):
     return float(m.group(0).replace(",", "."))
 
 
+def _flatten_text(soup: BeautifulSoup) -> str:
+    """Splaszczony tekst calej strony, jeden 'token' per linia - wystarczy
+    do bezpiecznego wyszukiwania 'etykieta -> najblizsza liczba/data po niej'
+    bez zgadywania struktury DOM (ktora bywa mocno zagniezdzona)."""
+    return soup.get_text(separator="\n")
+
+
+def _num_after_label(text: str, label: str):
+    """Szuka DOKLADNIE etykiety (np. 'Temperatura wody:') i pierwszej liczby
+    wystepujacej zaraz po niej w splaszczonym tekscie. Zweryfikowane na
+    faktycznym HTML-u sk.gis.gov.pl (sekcja 'Warunki' pokazuje etykiete i
+    wartosc jako osobne bloki, np. 'Temperatura wody:\\n20°C')."""
+    m = re.search(re.escape(label) + r"\s*(-?\d+(?:[.,]\d+)?)", text)
+    if not m:
+        return None
+    return float(m.group(1).replace(",", "."))
+
+
+def _date_after_label(text: str, label: str):
+    m = re.search(re.escape(label) + r"\s*(\d{2}/\d{2}/\d{4})", text)
+    return m.group(1) if m else None
+
+
 def parsuj_warunki(soup: BeautifulSoup) -> dict:
-    """Sekcja 'Warunki': temperatura wody/powietrza, wiatr, data pomiaru."""
-    temp_powietrza = _extract_number(_text_after_label(soup, "Temperatura powietrza"))
-    temp_wody = _extract_number(_text_after_label(soup, "Temperatura wody"))
-    wiatr = _extract_number(_text_after_label(soup, "Predkosc wiatru")
-                             or _text_after_label(soup, "Prędkość wiatru"))
-    data_pomiaru = _text_after_label(soup, "Data ostatniego pomiaru")
+    """Sekcja 'Warunki': temperatura wody/powietrza, wiatr, data pomiaru.
+
+    Realny fragment strony (potwierdzone na zywo, 14/07/2026):
+        Temperatura powietrza:
+        19°C
+        Temperatura wody:
+        20°C
+        Prędkość wiatru:
+        4m/s
+        Data ostatniego pomiaru: 13/07/2026
+    """
+    text = _flatten_text(soup)
+
+    temp_powietrza = _num_after_label(text, "Temperatura powietrza:")
+    temp_wody = _num_after_label(text, "Temperatura wody:")
+    wiatr = _num_after_label(text, "Prędkość wiatru:")
+    data_pomiaru = _date_after_label(text, "Data ostatniego pomiaru:")
 
     return {
         "temp_wody_c": temp_wody,
@@ -108,25 +118,27 @@ def parsuj_warunki(soup: BeautifulSoup) -> dict:
 
 
 def parsuj_ocene_aktualna(soup: BeautifulSoup) -> dict:
-    """Sekcja 'Ocena wody' - aktualny status na gorze strony."""
-    data_oceny = _text_after_label(soup, "Data oceny")
-    nastepne_badanie = _text_after_label(soup, "Nastepne badanie") \
-        or _text_after_label(soup, "Następne badanie")
+    """Sekcja 'Ocena wody' - aktualny status na gorze strony.
 
-    # tresc oceny (np. "Woda przydatna do kapieli") - szukamy bloku sekcji "Ocena wody"
-    ocena_naglowek = soup.find(string=re.compile("Ocena wody"))
-    ocena_tekst = None
-    if ocena_naglowek:
-        blok = ocena_naglowek.find_parent()
-        if blok:
-            # najblizszy element listy / paragrafu z fraza "przydatna"/"nieprzydatna"
-            kandydat = blok.find_next(string=re.compile("przydatna", re.IGNORECASE))
-            if kandydat:
-                ocena_tekst = kandydat.strip()
+    Realny fragment strony:
+        Woda przydatna do kąpieli
+        Data oceny: 25/06/2026
+        Następne badanie: 13/07/2026
+    Obcinamy tekst do fragmentu PRZED 'Pokaż oceny wody', zeby przypadkiem
+    nie zlapac danych z tabeli historii ponizej (ktora ma inne naglowki,
+    ale dla bezpieczenstwa lepiej nie ryzykowac)."""
+    text = _flatten_text(soup)
+    czesc_aktualna = text.split("Pokaż oceny", 1)[0]
+
+    m_ocena = re.search(r"(Woda (?:nie)?przydatna do kąpieli)", czesc_aktualna)
+    ocena_tekst = m_ocena.group(1).strip() if m_ocena else None
 
     przydatna = None
     if ocena_tekst:
         przydatna = ocena_tekst.lower().startswith("woda przydatna")
+
+    data_oceny = _date_after_label(czesc_aktualna, "Data oceny:")
+    nastepne_badanie = _date_after_label(czesc_aktualna, "Następne badanie:")
 
     return {
         "ocena_tekst": ocena_tekst,
