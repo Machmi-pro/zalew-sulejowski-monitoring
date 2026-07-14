@@ -229,6 +229,7 @@
 
   .kap-history-wrap{ margin-top:1rem; }
   .kap-history-wrap[hidden]{ display:none; }
+  .kap-history-head{ display:flex; justify-content:flex-end; margin-bottom:0.85rem; }
 
   /* wiersze tabeli ocen - reużywają Twojej istniejącej logiki below-comfort/below-critical,
      więc dziedziczą też mobilny card-view z @media (max-width:640px) powyżej */
@@ -267,11 +268,7 @@
 
   <!-- ===================== NOWA SEKCJA: warunki kąpieliskowe ===================== -->
   <section id="kapielisko-section">
-    <h2>Warunki kąpieliskowe
-      <span class="range-toggle" id="kap-season-toggle">
-        <!-- przyciski lat (2026 / 2025 / 2024...) generowane w JS -->
-      </span>
-    </h2>
+    <h2>Warunki kąpieliskowe</h2>
     <div class="chart-card">
       <div class="kap-top">
         <div>
@@ -293,6 +290,11 @@
       </button>
 
       <div class="kap-history-wrap" id="kap-history-wrap" hidden>
+        <div class="kap-history-head">
+          <span class="range-toggle" id="kap-season-toggle">
+            <!-- przyciski lat (2026 / 2025 / 2024...) generowane w JS -->
+          </span>
+        </div>
         <table>
           <thead>
             <tr><th>Data</th><th>Ocena</th><th>E. coli</th><th>Enterokoki</th></tr>
