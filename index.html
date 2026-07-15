@@ -454,7 +454,7 @@ function renderStatus(latest) {
   badge.style.color = st.color;
   if (latest.zrodlo_url) {
     document.getElementById('updated-note').innerHTML =
-      'Ostatni pomiar: ' + latest.data +
+      'Pomiar: ' + latest.data +
       ' · <a href="' + latest.zrodlo_url + '" target="_blank" rel="noopener">źródło komunikatu ↗</a>';
   } else {
     document.getElementById('updated-note').textContent = 'Ostatni pomiar: ' + latest.data;
