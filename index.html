@@ -726,8 +726,8 @@ function renderKapMetrics(warunki) {
     </div>`;
   el.innerHTML =
     metric(warunki.temp_wody_c, '°C', 'Temp. wody') +
-   // metric(warunki.temp_powietrza_c, '°C', 'Temp. powietrza') +
-   // metric(warunki.wiatr_ms, ' m/s', 'Wiatr');
+   metric(warunki.temp_powietrza_c, '°C', 'Temp. powietrza') +
+   metric(warunki.wiatr_ms, ' m/s', 'Wiatr');
 }
 
 function renderKapSource(zrodloUrl) {
