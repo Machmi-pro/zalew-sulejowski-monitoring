@@ -681,7 +681,7 @@ function initKapHistoryToggle() {
 
 function renderKapUpdated(warunki, ocena) {
   const el = document.getElementById('kap-updated');
-  let txt = warunki.data_pomiaru ? `Pomiar: ${warunki.data_pomiaru}`;
+  let txt = warunki.data_pomiaru ? `Pomiar: ${warunki.data_pomiaru}` : '';
   /* if (ocena.data_oceny) txt += (txt ? ' · ' : '') + `Ocena: ${ocena.data_oceny}`;
   if (ocena.nastepne_badanie) txt += ` · kolejne badanie ${ocena.nastepne_badanie}`;*/
   el.textContent = txt;
