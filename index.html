@@ -149,7 +149,7 @@
     color: var(--ink);
   }
   .status-value span{ font-size:1rem; color:var(--ink-dim); margin-left:0.4rem; }
-  .status-label{ margin:0.4rem 0 0.9rem; font-size:0.92rem; color:var(--ink-dim); }
+  .status-label{ margin:0.4rem 0 0.9rem; font-size:0.92rem; color:var(--ink-dim); line-height:1.7; }
   .status-badge{
     display:inline-flex; align-items:center; gap:0.5rem;
     font-family:'SF Mono','Menlo',monospace; font-size:0.72rem; letter-spacing:0.04em;
@@ -436,8 +436,17 @@ function renderStatus(latest) {
   document.getElementById('latest-value').innerHTML =
     latest.poj_aktualna_mln_m3.toFixed(1) + ' <span>mln m³</span>';
   const st = statusFor(latest.poj_aktualna_mln_m3);
-  document.getElementById('latest-label').textContent =
-    `${st.label} · napełnienie ${latest.napelnienie_procent}% · rzędna ${latest.rzedna_m_npm ?? '—'} m n.p.m.`;
+
+  const doplyw = latest.doplyw_m3s != null ? latest.doplyw_m3s.toFixed(1) : '—';
+  const odplyw = latest.odplyw_m3s != null ? latest.odplyw_m3s.toFixed(1) : '—';
+
+  document.getElementById('latest-label').innerHTML =
+    `${st.label}<br>` +
+    `napełnienie ${latest.napelnienie_procent}%<br>` +
+    `rzędna ${latest.rzedna_m_npm ?? '—'} m n.p.m.<br>` +
+    `dopływ ${doplyw} m³/s<br>` +
+    `odpływ ${odplyw} m³/s`;
+
   const badge = document.getElementById('status-badge');
   badge.textContent = st.word;
   badge.style.color = st.color;
