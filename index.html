@@ -455,7 +455,7 @@ function renderStatus(latest) {
   if (latest.zrodlo_url) {
     document.getElementById('updated-note').innerHTML =
       'Pomiar: ' + latest.data +
-      ' · <a href="' + latest.zrodlo_url + '" target="_blank" rel="noopener">źródło komunikatu ↗</a>';
+      '<p><a href="' + latest.zrodlo_url + '" target="_blank" rel="noopener">źródło komunikatu ↗</a></p>';
   } else {
     document.getElementById('updated-note').textContent = 'Ostatni pomiar: ' + latest.data;
   }
