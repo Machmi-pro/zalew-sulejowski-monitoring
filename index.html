@@ -329,10 +329,10 @@
       <div class="kap-metrics-wrap">
         <div class="kap-metrics" id="kap-metrics">
           <!-- generowane w JS: temp. wody / temp. powietrza / wiatr -->
-        </div>
+        
         <p class="updated-note" id="kap-updated"></p>
         <p class="kap-source" id="kap-source"></p>
-         
+         </div>
       </div>
 
       <button type="button" class="kap-history-toggle" id="kap-history-toggle" aria-expanded="false">
@@ -661,7 +661,7 @@ function renderKapMetrics(warunki) {
 function renderKapSource(zrodloUrl) {
   const el = document.getElementById('kap-source');
   if (zrodloUrl) {
-    el.innerHTML = '<a href="' + zrodloUrl + '" target="_blank" rel="noopener">Źródło komunikatu ↗</a>';
+    el.innerHTML = '<a href="' + zrodloUrl + '" target="_blank" rel="noopener">źródło komunikatu ↗</a>';
   } else {
     el.textContent = 'Źródło: Serwis Kąpieliskowy GIS (sk.gis.gov.pl)';
   }
