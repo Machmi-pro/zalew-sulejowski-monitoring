@@ -661,7 +661,7 @@ function renderKapMetrics(warunki) {
 function renderKapSource(zrodloUrl) {
   const el = document.getElementById('kap-source');
   if (zrodloUrl) {
-    el.innerHTML = 'Źródło: <a href="' + zrodloUrl + '" target="_blank" rel="noopener">Serwis Kąpieliskowy GIS ↗</a>';
+    el.innerHTML = '<a href="' + zrodloUrl + '" target="_blank" rel="noopener">Źródło komunikatu ↗</a>';
   } else {
     el.textContent = 'Źródło: Serwis Kąpieliskowy GIS (sk.gis.gov.pl)';
   }
@@ -681,7 +681,7 @@ function initKapHistoryToggle() {
 
 function renderKapUpdated(warunki, ocena) {
   const el = document.getElementById('kap-updated');
-  let txt = warunki.data_pomiaru ? `Pomiar: ${warunki.data_pomiaru}` : '';
+  let txt = warunki.data_pomiaru ? `Pomiar: ${warunki.data_pomiaru}`;
   /* if (ocena.data_oceny) txt += (txt ? ' · ' : '') + `Ocena: ${ocena.data_oceny}`;
   if (ocena.nastepne_badanie) txt += ` · kolejne badanie ${ocena.nastepne_badanie}`;*/
   el.textContent = txt;
