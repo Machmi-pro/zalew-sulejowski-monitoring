@@ -8,10 +8,17 @@ name: Aktualizacja danych kąpieliska
 # - mozliwosc recznego odpalenia z zakladki Actions (workflow_dispatch)
 # - commit tylko jesli plik danych faktycznie sie zmienil
 
+#on:
+# schedule:
+#   - cron: '30 09 * * 1-5'   # pon-pt, 11:00 UTC (~13:00 czasu PL latem)
+#  workflow_dispatch: {}       # przycisk "Run workflow" w zakladce Actions
+
 on:
   schedule:
-    - cron: '30 09 * * 1-5'   # pon-pt, 11:00 UTC (~13:00 czasu PL latem)
-  workflow_dispatch: {}       # przycisk "Run workflow" w zakladce Actions
+    - cron: '0 */4 * * *'   # co 4h, przez cały tydzień (00,04,08,12,16,20 UTC)
+  workflow_dispatch: {}
+
+    
 
 permissions:
   contents: write
