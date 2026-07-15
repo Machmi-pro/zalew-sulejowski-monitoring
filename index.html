@@ -240,6 +240,46 @@
     .gauge{ height:150px; width:30px; }
   }
 
+  /* --- NOWE: karta pogody (aktualne warunki, Smardzewice/Barkowice) --- */
+  .weather-card{
+    display:flex;
+    flex-direction:column;
+    gap:0.6rem;
+    background: var(--bg-soft);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 2rem;
+  }
+  .weather-row{
+    display:flex;
+    align-items:center;
+    gap: 1.6rem;
+    flex-wrap: wrap;
+  }
+  .weather-icon{ width:30px; height:30px; flex-shrink:0; }
+  .weather-item{
+    display:flex;
+    align-items:baseline;
+    gap:0.35rem;
+  }
+  .weather-item .value{ font-size:1.15rem; color:var(--ink); line-height:1; }
+  .weather-item .value span{ font-size:0.72rem; color:var(--ink-dim); margin-left:0.1rem; }
+  .weather-item .label{
+    font-family:'SF Mono','Menlo',monospace; font-size:0.62rem;
+    letter-spacing:0.03em; text-transform:uppercase; color:var(--ink-dim);
+  }
+  .weather-condition{ font-size:0.92rem; color:var(--ink-dim); font-style:italic; }
+  .weather-meta{
+    font-size:0.74rem; color:var(--ink-dim);
+    font-family:'SF Mono','Menlo',monospace;
+  }
+  .weather-meta a{ color:var(--tide); }
+
+  @media (max-width:480px){
+    .weather-row{ gap:1.1rem; }
+  }
+
   /* --- NOWE: sekcja warunków kąpieliskowych --- */
   .kap-top{
     display:flex; justify-content:space-between; align-items:center;
@@ -316,6 +356,29 @@
     </div>
   </div>
 
+  <!-- ===================== NOWA KARTA: pogoda teraz ===================== -->
+  <div class="weather-card">
+    <div class="weather-row">
+      <svg class="weather-icon" id="weather-icon" viewBox="0 0 24 24" fill="none"></svg>
+      <div class="weather-item">
+        <span class="value" id="weather-temp">--<span>°C</span></span>
+      </div>
+      <div class="weather-item">
+        <span class="value" id="weather-wind">--<span> km/h</span></span>
+        <span class="label">wiatr</span>
+      </div>
+      <div class="weather-item">
+        <span class="value" id="weather-dir">--°</span>
+        <span class="label">kierunek</span>
+      </div>
+      <span class="weather-condition" id="weather-condition">—</span>
+    </div>
+    <p class="weather-meta" id="weather-meta">
+      Źródło: <a href="https://open-meteo.com" target="_blank" rel="noopener">open-meteo.com</a> · aktualizacja: —
+    </p>
+  </div>
+  <!-- =================== /NOWA KARTA: pogoda teraz ===================== -->
+
   <!-- ===================== NOWA SEKCJA: warunki kąpieliskowe ===================== -->
   <section id="kapielisko-section">
     <h2>Warunki kąpieliskowe</h2>
@@ -329,9 +392,9 @@
       </div>
 
       <div class="kap-metrics-wrap">
-        <div class="kap-metrics" id="kap-metrics">
-          <!-- generowane w JS: temp. wody / temp. powietrza / wiatr -->
-        </div>
+        <!--<div class="kap-metrics" id="kap-metrics">
+          <!-- generowane w JS: temp. wody / temp. powietrza / wiatr 
+        </div>-->
         <p class="updated-note" id="kap-updated"></p>
         <p class="kap-source" id="kap-source"></p>
          
@@ -721,6 +784,63 @@ function initKapSeasonToggle(sezony, onSelect) {
   });
   return lata[0];
 }
+
+/* ===================== NOWE: pogoda teraz (Open-Meteo, live client-side) ===================== */
+const WEATHER_LAT = 51.47441;
+const WEATHER_LON = 20.041153;
+
+const WMO_META = {
+  0:  ["Bezchmurnie", "M0"],
+  1:  ["Pogodnie", "M1"], 2: ["Częściowe zachmurzenie", "M2"], 3: ["Pochmurno", "M3"],
+  45: ["Mgła", "FOG"], 48: ["Mgła osadzająca szron", "FOG"],
+  51: ["Mżawka słaba", "DRZ"], 53: ["Mżawka", "DRZ"], 55: ["Mżawka silna", "DRZ"],
+  61: ["Deszcz słaby", "RAIN"], 63: ["Deszcz", "RAIN"], 65: ["Deszcz silny", "RAIN"],
+  71: ["Śnieg słaby", "SNOW"], 73: ["Śnieg", "SNOW"], 75: ["Śnieg silny", "SNOW"],
+  80: ["Przelotne opady", "RAIN"], 81: ["Przelotne opady", "RAIN"], 82: ["Ulewa", "RAIN"],
+  95: ["Burza", "STORM"], 96: ["Burza z gradem", "STORM"], 99: ["Burza z gradem", "STORM"]
+};
+
+const WMO_ICON = {
+  M0:   `<circle cx="12" cy="12" r="6" fill="#1f8f80"/>`,
+  M1:   `<circle cx="9" cy="9" r="5" fill="#1f8f80"/><path d="M13 15a5 5 0 100 6h1a4 4 0 000-8z" fill="#b7c7c5"/>`,
+  M2:   `<circle cx="8" cy="8" r="4" fill="#1f8f80"/><path d="M6 16a5 5 0 105 5h6a4 4 0 000-8 5 5 0 00-9-1.5A5 5 0 006 16z" fill="#b7c7c5"/>`,
+  M3:   `<path d="M4 15a5 5 0 105 5h8a4 4 0 000-8 6 6 0 00-11-2A5 5 0 004 15z" fill="#b7c7c5"/>`,
+  FOG:  `<path d="M4 15a5 5 0 105 5h8a4 4 0 000-8 6 6 0 00-11-2A5 5 0 004 15z" fill="#b7c7c5"/><line x1="4" y1="21" x2="20" y2="21" stroke="#8fa6a4" stroke-width="1.5"/>`,
+  DRZ:  `<path d="M5 12a5 5 0 105 5h7a4 4 0 000-8 6 6 0 00-11-2A5 5 0 005 12z" fill="#b7c7c5"/><line x1="8" y1="19" x2="7" y2="22" stroke="#5c7876" stroke-width="1.5"/><line x1="13" y1="19" x2="12" y2="22" stroke="#5c7876" stroke-width="1.5"/>`,
+  RAIN: `<path d="M5 12a5 5 0 105 5h7a4 4 0 000-8 6 6 0 00-11-2A5 5 0 005 12z" fill="#b7c7c5"/><line x1="8" y1="19" x2="6" y2="24" stroke="#146b5f" stroke-width="1.8"/><line x1="13" y1="19" x2="11" y2="24" stroke="#146b5f" stroke-width="1.8"/><line x1="18" y1="19" x2="16" y2="24" stroke="#146b5f" stroke-width="1.8"/>`,
+  SNOW: `<path d="M5 12a5 5 0 105 5h7a4 4 0 000-8 6 6 0 00-11-2A5 5 0 005 12z" fill="#b7c7c5"/><circle cx="8" cy="21" r="1.2" fill="#5c7876"/><circle cx="13" cy="22" r="1.2" fill="#5c7876"/><circle cx="18" cy="21" r="1.2" fill="#5c7876"/>`,
+  STORM:`<path d="M5 11a5 5 0 105 5h7a4 4 0 000-8 6 6 0 00-11-2A5 5 0 005 11z" fill="#b7c7c5"/><polygon points="13,15 9,22 12,22 10,28 17,19 13,19" fill="#b8791a"/>`
+};
+
+async function loadWeather() {
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${WEATHER_LAT}&longitude=${WEATHER_LON}&current_weather=true&timezone=Europe/Warsaw`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('błąd sieci');
+    const data = await res.json();
+    const cw = data.current_weather;
+
+    document.getElementById('weather-temp').innerHTML = `${Math.round(cw.temperature)}<span>°C</span>`;
+    document.getElementById('weather-wind').innerHTML = `${cw.windspeed.toFixed(1)}<span> km/h</span>`;
+    document.getElementById('weather-dir').textContent = `${Math.round(cw.winddirection)}°`;
+
+    const meta = WMO_META[cw.weathercode] || ['Warunki nieznane', 'M3'];
+    document.getElementById('weather-condition').textContent = meta[0];
+    document.getElementById('weather-icon').innerHTML = WMO_ICON[meta[1]] || WMO_ICON.M3;
+
+    const t = new Date(cw.time);
+    const hh = t.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('weather-meta').innerHTML =
+      `Źródło: <a href="https://open-meteo.com" target="_blank" rel="noopener">open-meteo.com</a> · aktualizacja: ${hh} · odświeżanie co 5 min`;
+
+  } catch (err) {
+    document.getElementById('weather-meta').textContent = 'Błąd pobierania danych pogodowych';
+    console.warn('Pogoda:', err.message);
+  }
+}
+
+loadWeather();
+setInterval(loadWeather, 5 * 60 * 1000);
 
 loadKapielisko().then(dane => {
   if (!dane) return;
