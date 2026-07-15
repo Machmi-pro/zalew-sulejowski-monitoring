@@ -632,10 +632,10 @@ async function loadKapielisko() {
 function renderKapBadge(ocena) {
   const badge = document.getElementById('kap-badge');
   if (ocena.przydatna === true) {
-    badge.textContent = 'przydatna';
+    badge.textContent = 'woda przydatna do kąpieli';
     badge.style.color = 'var(--tide)';
   } else if (ocena.przydatna === false) {
-    badge.textContent = 'nieprzydatna';
+    badge.textContent = 'woda nieprzydatna do kąpieli';
     badge.style.color = 'var(--alert)';
   } else {
     badge.textContent = 'brak oceny';
@@ -680,8 +680,8 @@ function initKapHistoryToggle() {
 function renderKapUpdated(warunki, ocena) {
   const el = document.getElementById('kap-updated');
   let txt = warunki.data_pomiaru ? `Pomiar: ${warunki.data_pomiaru}` : '';
-  if (ocena.data_oceny) txt += (txt ? ' · ' : '') + `Ocena: ${ocena.data_oceny}`;
-  if (ocena.nastepne_badanie) txt += ` · kolejne badanie ${ocena.nastepne_badanie}`;
+  /* if (ocena.data_oceny) txt += (txt ? ' · ' : '') + `Ocena: ${ocena.data_oceny}`;
+  if (ocena.nastepne_badanie) txt += ` · kolejne badanie ${ocena.nastepne_badanie}`;*/
   el.textContent = txt;
 }
 
