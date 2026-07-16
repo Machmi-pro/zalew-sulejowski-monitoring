@@ -838,7 +838,7 @@ async function loadWeather() {
     document.getElementById('weather-arrow').style.transform = `rotate(${cw.winddirection}deg)`;
     const meta = WMO_META[cw.weathercode] || ['Warunki nieznane', 'M3'];
     document.getElementById('weather-condition').textContent = meta[0];
-    document.getElementById('weather-icon').innerHTML = WMO_ICON[meta[1]] || WMO_ICON.M3;
+    // document.getElementById('weather-icon').innerHTML = WMO_ICON[meta[1]] || WMO_ICON.M3;
 
     const t = new Date(cw.time);
     const hh = t.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
