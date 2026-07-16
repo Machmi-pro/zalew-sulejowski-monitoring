@@ -383,8 +383,10 @@
         <span class="value" id="weather-dir">--°</span>
         <span class="label">kierunek</span>
       </div>
+    <!--
       <span class="weather-condition" id="weather-condition">—</span>
-    </div>
+  -->
+  </div>
     <p class="weather-meta" id="weather-meta">
       Źródło: <a href="https://open-meteo.com" target="_blank" rel="noopener">open-meteo.com</a> · aktualizacja: —
     </p>
@@ -837,7 +839,7 @@ async function loadWeather() {
     document.getElementById('weather-dir').textContent = `${Math.round(cw.winddirection)}°`;
     document.getElementById('weather-arrow').style.transform = `rotate(${cw.winddirection}deg)`;
     const meta = WMO_META[cw.weathercode] || ['Warunki nieznane', 'M3'];
-    document.getElementById('weather-condition').textContent = meta[0];
+    //document.getElementById('weather-condition').textContent = meta[0];
     // document.getElementById('weather-icon').innerHTML = WMO_ICON[meta[1]] || WMO_ICON.M3;
 
     const t = new Date(cw.time);
