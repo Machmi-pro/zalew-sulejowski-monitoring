@@ -330,9 +330,39 @@
   tr.kap-bad td{ color:var(--alert); font-weight:700; }
   tr.kap-bad{ background: var(--alert-bg); }
   tr.kap-ok td{ color:var(--ink); }
+/* menu */
+  .site-switcher{
+  display:flex;
+  justify-content:center;
+  gap:0.4rem;
+  background: var(--tide-deep);
+  padding:0.5rem 1rem;
+  font-family:'SF Mono','Menlo',monospace;
+  font-size:0.7rem;
+  letter-spacing:0.02em;
+}
+.site-switcher a{
+  color:rgba(255,255,255,0.65);
+  text-decoration:none;
+  padding:0.3rem 0.75rem;
+  border-radius:99px;
+  transition: background .15s, color .15s;
+}
+.site-switcher a:hover{ color:#fff; }
+.site-switcher a.active{
+  color:#fff;
+  background: rgba(255,255,255,0.15);
+  font-weight:600;
+}
+
+
 </style>
 </head>
 <body>
+<nav class="site-switcher">
+  <a href="https://machmi-pro.github.io/zalew-sulejowski-monitoring/" class="active">Zalew Sulejowski</a>
+  <a href="https://machmi-pro.github.io/pilica-monitoring/">Pilica — wodowskazy</a>
+</nav>
 
 <header>
   <p class="eyebrow">Zbiornik Sulejów &middot; Pilica &middot; RZGW Warszawa</p>
