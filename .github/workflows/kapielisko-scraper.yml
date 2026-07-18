@@ -10,7 +10,7 @@ name: Aktualizacja danych kąpieliska
 
 on:
  schedule:
-   - cron: '30 09 * * 1-5'   # pon-pt, 11:00 UTC (~13:00 czasu PL latem)
+   - cron: '30 09 * * *'   # pon-pt, 11:00 UTC (~13:00 czasu PL latem)
  workflow_dispatch: {}       # przycisk "Run workflow" w zakladce Actions
 
 # on:
