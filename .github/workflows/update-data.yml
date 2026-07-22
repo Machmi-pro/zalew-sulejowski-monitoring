@@ -23,16 +23,19 @@ jobs:
           python-version: '3.11'
 
       - name: Zainstaluj zależności
-        run: pip install requests pdfplumber
+        run: pip install requests pdfplumber numpy
 
       - name: Uruchom skrypt pobierający dane
         run: python scripts/pobierz.py
+
+      - name: Wylicz rzędną
+        run: python scripts/oblicz_rzedna.py
 
       - name: Zapisz zmiany w repozytorium
         run: |
           git config user.name "sulejow-bot"
           git config user.email "sulejow-bot@users.noreply.github.com"
-          git add data/sulejow.json
+          git add data/sulejow.json data/rzedna_wyliczenie.json
           git diff --quiet --cached || git commit -m "Automatyczna aktualizacja danych zbiornika Sulejów"
           git pull --rebase origin main
           git push
