@@ -1,0 +1,24 @@
+{
+  "data": "2026-07-22",
+  "poj_aktualna_mln_m3": 55.7,
+  "rzedna_surowa_m_npm": 165.54,
+  "rzedna_wyliczona_m_npm": 165.512,
+  "poza_zakresem_modelu": false,
+  "zakres_modelu_mln_m3": [
+    55.7,
+    74.7
+  ],
+  "n_punktow_dopasowania": 36,
+  "stopien_wielomianu": 2,
+  "wspolczynniki": [
+    -9.945e-05,
+    0.06917756,
+    161.9678167
+  ],
+  "zmiana_1d_cm": -2.9,
+  "zmiana_1d_data_bazowa": "2026-07-21",
+  "zmiana_14d_cm": -31.7,
+  "zmiana_14d_data_bazowa": "2026-07-08",
+  "zmiana_30d_cm": -67.8,
+  "zmiana_30d_data_bazowa": "2026-06-22"
+}
