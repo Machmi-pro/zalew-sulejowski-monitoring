@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TEST — Zalew Sulejowski — poziom i jakość wody</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#ffffff;
+    --bg-soft:#f4f8f8;
+    --panel-border:#dfe8e7;
+    --ink:#0e2a2a;
+    --ink-dim:#5c7876;
+    --tide:#1f8f80;
+    --tide-deep:#146b5f;
+    --alert:#c94a30;
+    --alert-bg:#fdeeea;
+    --caution:#b8791a;
+    --caution-bg:#fdf3e3;
+    --ok-bg:#e9f6f2;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--bg);
+    color:var(--ink);
+    font-family: 'Iowan Old Style', 'Georgia', serif;
+    min-height:100vh;
+    padding: 0 0 4rem;
+  }
+  .mono{ font-family: 'SF Mono','Menlo','Consolas',monospace; letter-spacing:0.02em; }
+
+  header{
+    padding: 2.75rem 1.25rem 1.75rem;
+    max-width: 960px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--panel-border);
+  }
+  .eyebrow{
+    font-family:'SF Mono','Menlo',monospace;
+    font-size:0.7rem;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--tide);
+    margin:0 0 0.6rem;
+  }
+  h1{
+    font-size: clamp(1.6rem, 6vw, 2.6rem);
+    font-weight:500;
+    margin:0 0 0.5rem;
+    color:var(--ink);
+    line-height:1.15;
+  }
+  .subtitle{ color:var(--ink-dim); font-size:0.98rem; max-width:56ch; margin:0; }
+
+  main{ max-width:960px; margin:0 auto; padding: 1.75rem 1.25rem 0; }
+
+  .status-panel{
+    display:grid;
+    grid-template-columns: 90px 1fr;
+    gap: 1.5rem;
+    align-items:stretch;
+    background: var(--bg-soft);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .gauge-wrap{ display:flex; flex-direction:column; align-items:center; gap:0.5rem;}
+  .gauge{
+    position:relative;
+    width: 38px;
+    height: 190px;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    overflow:hidden;
+    background: #ffffff;
+  }
+  .gauge-fill{
+    position:absolute; bottom:0; left:0; right:0;
+    background: linear-gradient(180deg, var(--tide), var(--tide-deep));
+    transition: height 1.2s cubic-bezier(.22,.9,.34,1);
+  }
+  .gauge-line{
+    position:absolute; left:-5px; right:-5px; height:1px;
+    background: #b7c7c5;
+  }
+  .gauge-line span{
+    position:absolute; right: 44px; top:-7px;
+    font-size:0.6rem; color: var(--ink-dim); white-space:nowrap;
+  }
+  .gauge-caption{ font-size:0.65rem; color:var(--ink-dim); text-align:center; line-height:1.3; }
+
+  .status-copy{ display:flex; flex-direction:column; justify-content:center; }
+  .status-value{
+    font-size: clamp(2rem, 7vw, 3rem);
+    line-height:1;
+    margin:0;
+    color: var(--ink);
+  }
+  .status-value span{ font-size:1rem; color:var(--ink-dim); margin-left:0.4rem; }
+  .status-label{ margin:0.4rem 0 0.9rem; font-size:0.92rem; color:var(--ink-dim); line-height:1.7; }
+  .status-badge{
+    display:inline-flex; align-items:center; gap:0.5rem;
+    font-family:'SF Mono','Menlo',monospace; font-size:0.72rem; letter-spacing:0.04em;
+    padding: 0.35rem 0.7rem; border-radius:99px; width:fit-content;
+    border:1px solid currentColor;
+  }
+
+  section h2{
+    font-size:1.05rem; font-weight:600; color:var(--ink);
+    margin: 0 0 1rem; padding-top: 0.25rem;
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.6rem;
+  }
+  .range-toggle{
+    display:inline-flex; gap:0.25rem;
+    background: var(--bg-soft); border:1px solid var(--panel-border);
+    border-radius:99px; padding:2px;
+  }
+  .range-btn{
+    font-family:'SF Mono','Menlo',monospace; font-size:0.68rem; letter-spacing:0.02em;
+    border:none; background:transparent; color:var(--ink-dim);
+    padding:0.32rem 0.7rem; border-radius:99px; cursor:pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .range-btn.active{ background: var(--tide); color:#fff; }
+  .chart-card{
+    background: #ffffff;
+    border: 1px solid var(--panel-border);
+    border-radius:10px;
+    padding: 1.25rem 1.1rem 1rem;
+    margin-bottom: 2rem;
+  }
+  .legend-row{
+    display:flex; gap:1.25rem; flex-wrap:wrap;
+    font-size:0.76rem; color:var(--ink-dim); margin-top:0.9rem;
+  }
+  .legend-row span{ display:inline-flex; align-items:center; gap:0.4rem; }
+  .swatch{ width:14px; height:3px; display:inline-block; }
+
+  table{ width:100%; border-collapse:collapse; font-size:0.85rem; }
+  th,td{ padding:0.55rem 0.5rem; text-align:right; border-bottom:1px solid var(--panel-border); }
+  th:first-child, td:first-child{ text-align:left; }
+  th{ color:var(--ink-dim); font-weight:600; font-family:'SF Mono','Menlo',monospace; font-size:0.66rem; letter-spacing:0.03em; text-transform:uppercase;}
+  tr.below-comfort td{ color: var(--caution); }
+  tr.below-critical td{ color: var(--alert); font-weight:700; }
+  tr.below-comfort{ background: var(--caution-bg); }
+  tr.below-critical{ background: var(--alert-bg); }
+
+  @media (max-width: 640px){
+    table, thead, tbody, th, td, tr{ display:block; }
+    thead{ position:absolute; top:-9999px; left:-9999px; }
+    table{ border:none; }
+    tbody tr{
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      padding: 0.6rem 0.75rem;
+      background:#fff;
+    }
+    tr.below-comfort{ background: var(--caution-bg); border-color: var(--caution); }
+    tr.below-critical{ background: var(--alert-bg); border-color: var(--alert); }
+    td{
+      display:flex; justify-content:space-between; align-items:center;
+      text-align:right; border:none; padding: 0.28rem 0;
+    }
+    td::before{
+      content: attr(data-label);
+      font-family:'SF Mono','Menlo',monospace; font-size:0.66rem;
+      letter-spacing:0.03em; text-transform:uppercase; color:var(--ink-dim);
+      text-align:left; padding-right:0.75rem;
+    }
+    td:first-child{ font-weight:600; font-size:0.95rem; padding-bottom:0.4rem; border-bottom:1px dashed var(--panel-border); margin-bottom:0.2rem; }
+    td:first-child::before{ content: ''; }
+  }
+
+  footer{
+    max-width:960px; margin: 1.5rem auto 0; padding: 1.25rem;
+    color: var(--ink-dim); font-size:0.76rem; border-top:1px solid var(--panel-border);
+  }
+  footer a{ color: var(--tide); }
+
+  .updated-note{ font-size:0.74rem; color: var(--ink-dim); margin-top:0.75rem; font-family:'SF Mono','Menlo',monospace;}
+  .updated-note a{ color: var(--tide); }
+
+  @media (max-width: 480px){
+    .status-panel{ grid-template-columns: 70px 1fr; gap:1rem; padding:1.1rem;}
+    .gauge{ height:150px; width:30px; }
+  }
+
+  /* --- karta/sekcja "Wyliczenie rzędnej" (test) --- */
+  .rzedna-top{
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:0.6rem; margin-bottom:1.1rem;
+  }
+  .rzedna-metrics-wrap{
+    margin-bottom:1.1rem; padding-bottom:1.1rem;
+    border-bottom:1px solid var(--panel-border);
+  }
+  .rzedna-metrics{ display:flex; gap:1.9rem; flex-wrap:wrap; }
+  .rzedna-metric{ display:flex; flex-direction:column; gap:0.2rem; }
+  .rzedna-metric .value{ font-size:1.4rem; color:var(--ink); line-height:1; }
+  .rzedna-metric .value span{ font-size:0.78rem; color:var(--ink-dim); margin-left:0.15rem; }
+  .rzedna-metric .value.up{ color: var(--tide-deep); }
+  .rzedna-metric .value.down{ color: var(--alert); }
+  .rzedna-metric .label{
+    font-family:'SF Mono','Menlo',monospace; font-size:0.62rem;
+    letter-spacing:0.03em; text-transform:uppercase; color:var(--ink-dim);
+  }
+  .rzedna-source{
+    margin:0.9rem 0 0; font-size:0.74rem; color:var(--ink-dim);
+    font-family:'SF Mono','Menlo',monospace;
+  }
+
+  .rzedna-history-toggle{
+    display:inline-flex; align-items:center; gap:0.4rem;
+    background:none; border:1px solid var(--panel-border); border-radius:99px;
+    padding:0.4rem 0.9rem;
+    font-family:'SF Mono','Menlo',monospace; font-size:0.72rem; letter-spacing:0.02em;
+    color:var(--tide); cursor:pointer; transition: background .15s, color .15s;
+  }
+  .rzedna-history-toggle:hover{ background: var(--bg-soft); }
+  .rzedna-history-arrow{ display:inline-block; transition: transform .2s ease; }
+  .rzedna-history-toggle.open .rzedna-history-arrow{ transform: rotate(180deg); }
+
+  .rzedna-history-wrap{ margin-top:1rem; font-size:0.82rem; color:var(--ink-dim); line-height:1.6; }
+  .rzedna-history-wrap[hidden]{ display:none; }
+  .rzedna-history-wrap code{
+    background: var(--bg-soft); padding:0.1rem 0.35rem; border-radius:4px;
+    font-family:'SF Mono','Menlo',monospace; font-size:0.78rem;
+  }
+
+  .site-switcher{
+    display:flex; justify-content:center; gap:0.4rem;
+    background: var(--tide-deep); padding:0.5rem 1rem;
+    font-family:'SF Mono','Menlo',monospace; font-size:0.7rem; letter-spacing:0.02em;
+  }
+  .site-switcher a{
+    color:rgba(255,255,255,0.65); text-decoration:none;
+    padding:0.3rem 0.75rem; border-radius:99px;
+    transition: background .15s, color .15s;
+  }
+  .site-switcher a:hover{ color:#fff; }
+  .site-switcher a.active{ color:#fff; background: rgba(255,255,255,0.15); font-weight:600; }
+
+</style>
+</head>
+<body>
+<nav class="site-switcher">
+  <a href="https://machmi-pro.github.io/zalew-sulejowski-monitoring/" class="active">Zalew Sulejowski</a>
+  <a href="https://machmi-pro.github.io/pilica-monitoring/">Pilica</a>
+</nav>
+
+<header>
+  <p class="eyebrow">TEST STRONY &middot; Zbiornik Sulejów &middot; Pilica &middot; RZGW Warszawa</p>
+  <h1>Zalew Sulejowski — poziom i jakość wody</h1>
+  <p class="subtitle">
+    Dane pochodzą z codziennych komunikatów PGW Wody Polskie i GIS.
+    Dane aktualizowane są codziennie ok. godz. 13:00 (bez weekendów)
+  </p>
+</header>
+
+<main>
+
+  <div class="status-panel">
+    <div class="gauge-wrap">
+      <div class="gauge" id="gauge">
+        <div class="gauge-line" id="line-max"><span>Vmax</span></div>
+        <div class="gauge-line" id="line-comfort"><span>komfort</span></div>
+        <div class="gauge-line" id="line-critical"><span>krytyczny</span></div>
+        <div class="gauge-fill" id="gauge-fill"></div>
+      </div>
+      <p class="gauge-caption">poziom<br>wzgl. Vmax</p>
+    </div>
+    <div class="status-copy">
+      <p class="status-value" id="latest-value">— <span>mln m³</span></p>
+      <p class="status-label" id="latest-label">Ładowanie danych…</p>
+      <div class="status-badge" id="status-badge">sprawdzam</div>
+      <p class="updated-note" id="updated-note"></p>
+    </div>
+  </div>
+
+  <section>
+    <h2>Pojemność w czasie
+      <span class="range-toggle" id="range-toggle">
+        <button type="button" class="range-btn" data-range="30" id="btn-range-30">30 dni</button>
+        <button type="button" class="range-btn" data-range="all" id="btn-range-all">Cały rok</button>
+      </span>
+    </h2>
+    <div class="chart-card">
+      <canvas id="chart" height="260"></canvas>
+      <div class="legend-row">
+        <span><i class="swatch" style="background:var(--tide)"></i> pojemność aktualna</span>
+        <span><i class="swatch" style="background:var(--caution)"></i> minimum komfortu (65 mln m³)</span>
+        <span><i class="swatch" style="background:var(--alert)"></i> poziom krytyczny (45 mln m³)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== NOWA (TESTOWA) SEKCJA: wyliczenie rzędnej ===================== -->
+  <section id="rzedna-section">
+    <h2>Wyliczenie rzędnej</h2>
+    <div class="chart-card">
+      <div class="rzedna-top">
+        <div class="status-badge" id="rzedna-badge">sprawdzam</div>
+      </div>
+
+      <div class="rzedna-metrics-wrap">
+        <div class="rzedna-metrics" id="rzedna-metrics">
+          <!-- generowane w JS -->
+        </div>
+        <p class="updated-note" id="rzedna-updated"></p>
+      </div>
+
+      <button type="button" class="rzedna-history-toggle" id="rzedna-history-toggle" aria-expanded="false">
+        Jak to liczymy? <span class="rzedna-history-arrow">▾</span>
+      </button>
+
+      <div class="rzedna-history-wrap" id="rzedna-history-wrap" hidden>
+        <!-- generowane w JS -->
+      </div>
+    </div>
+  </section>
+  <!-- =================== /NOWA (TESTOWA) SEKCJA: wyliczenie rzędnej ===================== -->
+
+  <section>
+    <h2>Dane źródłowe
+      <span class="range-toggle" id="table-range-toggle">
+        <button type="button" class="range-btn" data-range="30" id="btn-table-range-30">30 dni</button>
+        <button type="button" class="range-btn" data-range="all" id="btn-table-range-all">Cały rok</button>
+      </span>
+    </h2>
+    <div class="chart-card">
+      <table>
+        <thead>
+          <tr><th>Data</th><th>Rzędna [m n.p.m.]</th><th>Pojemność [mln m³]</th><th>Napełnienie [%]</th><th>Dopływ [m³/s]</th><th>Odpływ [m³/s]</th><th>Rezerwa [mln m³]</th></tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  TEST — strona do sprawdzania nowej sekcji "Wyliczenie rzędnej", nie podpięta jeszcze do prawdziwego pipeline'u.
+  Źródło danych: <a href="https://www.gov.pl/web/wody-polskie/sytuacja-hydrologiczna" target="_blank" rel="noopener">PGW Wody Polskie — Sytuacja hydrologiczna</a>.
+</footer>
+
+<script>
+const CRITICAL = 45;
+const COMFORT = 65;
+const VMAX = 84.3;
+
+async function loadData() {
+  const res = await fetch('data/sulejow.json?_=' + Date.now());
+  if (!res.ok) throw new Error('Nie udało się wczytać danych');
+  return res.json();
+}
+
+function statusFor(value) {
+  if (value < CRITICAL) return { label: 'Poniżej poziomu krytycznego', color: 'var(--alert)', word: 'krytyczny' };
+  if (value < COMFORT) return { label: 'Poniżej minimum komfortu', color: 'var(--caution)', word: 'ostrzeżenie' };
+  return { label: 'W normie, powyżej minimum komfortu', color: 'var(--tide)', word: 'w normie' };
+}
+
+function renderGauge(latest) {
+  const pct = Math.max(0, Math.min(100, (latest.poj_aktualna_mln_m3 / VMAX) * 100));
+  document.getElementById('gauge-fill').style.height = pct + '%';
+  document.getElementById('gauge-fill').style.background =
+    latest.poj_aktualna_mln_m3 < CRITICAL ? 'linear-gradient(180deg,#e0684a,#c94a30)' :
+    latest.poj_aktualna_mln_m3 < COMFORT ? 'linear-gradient(180deg,#e0a94a,#b8791a)' :
+    'linear-gradient(180deg,#3fb6a8,#146b5f)';
+
+  const setLine = (id, valueAtLine) => {
+    const p = Math.max(0, Math.min(100, (valueAtLine / VMAX) * 100));
+    document.getElementById(id).style.bottom = p + '%';
+  };
+  setLine('line-max', VMAX);
+  setLine('line-comfort', COMFORT);
+  setLine('line-critical', CRITICAL);
+}
+
+function renderStatus(latest) {
+  document.getElementById('latest-value').innerHTML =
+    latest.poj_aktualna_mln_m3.toFixed(1) + ' <span>mln m³</span>';
+  const st = statusFor(latest.poj_aktualna_mln_m3);
+
+  const doplyw = latest.doplyw_m3s != null ? latest.doplyw_m3s.toFixed(1) : '—';
+  const odplyw = latest.odplyw_m3s != null ? latest.odplyw_m3s.toFixed(1) : '—';
+
+  document.getElementById('latest-label').innerHTML =
+    `${st.label}<br>` +
+    `napełnienie ${latest.napelnienie_procent}%<br>` +
+    `rzędna ${latest.rzedna_m_npm ?? '—'} m n.p.m.<br>` +
+    `dopływ ${doplyw} m³/s<br>` +
+    `odpływ ${odplyw} m³/s`;
+
+  const badge = document.getElementById('status-badge');
+  badge.textContent = st.word;
+  badge.style.color = st.color;
+  if (latest.zrodlo_url) {
+    document.getElementById('updated-note').innerHTML =
+      'Pomiar: ' + latest.data +
+      '<p><a href="' + latest.zrodlo_url + '" target="_blank" rel="noopener">źródło komunikatu ↗</a></p>';
+  } else {
+    document.getElementById('updated-note').textContent = 'Ostatni pomiar: ' + latest.data;
+  }
+}
+
+function renderTable(rows, range) {
+  const filtered = filterByRange(rows, range);
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = '';
+  [...filtered].reverse().forEach(r => {
+    const tr = document.createElement('tr');
+    if (r.poj_aktualna_mln_m3 < CRITICAL) tr.className = 'below-critical';
+    else if (r.poj_aktualna_mln_m3 < COMFORT) tr.className = 'below-comfort';
+    tr.innerHTML =
+      `<td data-label="Data">${r.data}</td>` +
+      `<td data-label="Rzędna [m n.p.m.]">${r.rzedna_m_npm ?? '—'}</td>` +
+      `<td data-label="Pojemność [mln m³]">${r.poj_aktualna_mln_m3.toFixed(1)}</td>` +
+      `<td data-label="Napełnienie [%]">${r.napelnienie_procent}</td>` +
+      `<td data-label="Dopływ [m³/s]">${r.doplyw_m3s.toFixed(1)}</td>` +
+      `<td data-label="Odpływ [m³/s]">${r.odplyw_m3s.toFixed(1)}</td>` +
+      `<td data-label="Rezerwa [mln m³]">${r.rezerwa_aktualna_mln_m3.toFixed(1)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+let chartInstance = null;
+let allRows = [];
+let currentRange = '30';
+
+function filterByRange(rows, range) {
+  if (range === 'all') return rows;
+  const cutoff = new Date(rows[rows.length - 1].data);
+  cutoff.setDate(cutoff.getDate() - 30);
+  return rows.filter(r => new Date(r.data) >= cutoff);
+}
+
+function renderChart(rows, range) {
+  const filtered = filterByRange(rows, range);
+  const many = filtered.length > 20;
+
+  const ctx = document.getElementById('chart').getContext('2d');
+  if (chartInstance) chartInstance.destroy();
+
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: filtered.map(r => r.data.slice(5)),
+      datasets: [
+        {
+          label: 'Pojemność aktualna (mln m³)',
+          data: filtered.map(r => r.poj_aktualna_mln_m3),
+          borderColor: '#1f8f80',
+          backgroundColor: 'rgba(31,143,128,0.10)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: many ? 1.5 : 2,
+          pointRadius: many ? 1.5 : 3,
+          pointHoverRadius: 5,
+          pointBackgroundColor: '#1f8f80',
+        },
+        {
+          label: 'Minimum komfortu',
+          data: filtered.map(() => COMFORT),
+          borderColor: '#b8791a',
+          borderDash: [5, 4],
+          pointRadius: 0,
+        },
+        {
+          label: 'Poziom krytyczny',
+          data: filtered.map(() => CRITICAL),
+          borderColor: '#c94a30',
+          borderDash: [5, 4],
+          pointRadius: 0,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          min: 0, max: 90,
+          ticks: { color: '#5c7876' },
+          grid: { color: 'rgba(14,42,42,0.06)' },
+          title: { display: true, text: 'mln m³', color: '#5c7876' },
+        },
+        x: {
+          ticks: {
+            color: '#5c7876',
+            autoSkip: true,
+            maxRotation: 0,
+            maxTicksLimit: many ? 10 : undefined,
+          },
+          grid: { color: 'rgba(14,42,42,0.03)' },
+        },
+      },
+    },
+  });
+}
+
+function setActiveRangeButton(range) {
+  document.getElementById('btn-range-30').classList.toggle('active', range === '30');
+  document.getElementById('btn-range-all').classList.toggle('active', range === 'all');
+}
+
+function initRangeToggle() {
+  document.getElementById('btn-range-30').addEventListener('click', () => {
+    if (currentRange === '30') return;
+    currentRange = '30';
+    setActiveRangeButton('30');
+    renderChart(allRows, '30');
+  });
+  document.getElementById('btn-range-all').addEventListener('click', () => {
+    if (currentRange === 'all') return;
+    currentRange = 'all';
+    setActiveRangeButton('all');
+    renderChart(allRows, 'all');
+  });
+}
+
+let tableRange = '30';
+
+function setActiveTableRangeButton(range) {
+  document.getElementById('btn-table-range-30').classList.toggle('active', range === '30');
+  document.getElementById('btn-table-range-all').classList.toggle('active', range === 'all');
+}
+
+function initTableRangeToggle() {
+  document.getElementById('btn-table-range-30').addEventListener('click', () => {
+    if (tableRange === '30') return;
+    tableRange = '30';
+    setActiveTableRangeButton('30');
+    renderTable(allRows, tableRange);
+  });
+  document.getElementById('btn-table-range-all').addEventListener('click', () => {
+    if (tableRange === 'all') return;
+    tableRange = 'all';
+    setActiveTableRangeButton('all');
+    renderTable(allRows, tableRange);
+  });
+}
+
+loadData()
+  .then(rows => {
+    if (!rows.length) throw new Error('Brak danych');
+    allRows = rows;
+    renderGauge(rows[rows.length - 1]);
+    renderStatus(rows[rows.length - 1]);
+    setActiveRangeButton(currentRange);
+    initRangeToggle();
+    renderChart(allRows, currentRange);
+    setActiveTableRangeButton(tableRange);
+    initTableRangeToggle();
+    renderTable(allRows, tableRange);
+  })
+  .catch(err => {
+    document.getElementById('latest-label').textContent = 'Błąd wczytywania danych: ' + err.message;
+  });
+
+/* ===================== NOWE (TEST): wyliczenie rzędnej ===================== */
+
+async function loadRzedna() {
+  try {
+    const res = await fetch('data/rzedna_wyliczenie_test.json?_=' + Date.now());
+    if (!res.ok) throw new Error('brak pliku danych wyliczenia rzędnej');
+    return res.json();
+  } catch (err) {
+    document.getElementById('rzedna-badge').textContent = 'brak danych';
+    console.warn('Rzędna: nie udało się wczytać danych —', err.message);
+    return null;
+  }
+}
+
+function formatujZmiane(cm) {
+  if (cm == null) return { text: '—', cls: '' };
+  const znak = cm > 0 ? '+' : '';
+  const cls = cm > 0 ? 'up' : (cm < 0 ? 'down' : '');
+  return { text: `${znak}${cm.toFixed(1)}`, cls };
+}
+
+function renderRzednaBadge(dane) {
+  const badge = document.getElementById('rzedna-badge');
+  if (dane.poza_zakresem_modelu) {
+    badge.textContent = 'poza zakresem modelu — ostrożnie';
+    badge.style.color = 'var(--caution)';
+  } else {
+    badge.textContent = 'w zakresie modelu';
+    badge.style.color = 'var(--tide)';
+  }
+}
+
+function renderRzednaMetrics(dane) {
+  const el = document.getElementById('rzedna-metrics');
+
+  const metric = (value, unit, label, cls) => `
+    <div class="rzedna-metric">
+      <div class="value ${cls || ''}">${value ?? '—'}<span>${unit}</span></div>
+      <div class="label">${label}</div>
+    </div>`;
+
+  const z1 = formatujZmiane(dane.zmiana_1d_cm);
+  const z14 = formatujZmiane(dane.zmiana_14d_cm);
+  const z30 = formatujZmiane(dane.zmiana_30d_cm);
+
+  el.innerHTML =
+    metric(dane.rzedna_wyliczona_m_npm?.toFixed(2), ' m n.p.m.', 'Rzędna wyliczona') +
+    metric(z1.text, ' cm', `1 dzień (vs ${dane.zmiana_1d_data_bazowa ?? '—'})`, z1.cls) +
+    metric(z14.text, ' cm', `14 dni (vs ${dane.zmiana_14d_data_bazowa ?? '—'})`, z14.cls) +
+    metric(z30.text, ' cm', `30 dni (vs ${dane.zmiana_30d_data_bazowa ?? '—'})`, z30.cls);
+}
+
+function renderRzednaUpdated(dane) {
+  const el = document.getElementById('rzedna-updated');
+  el.textContent = `Stan na ${dane.data} · rzędna z komunikatu: ${dane.rzedna_surowa_m_npm ?? '—'} m n.p.m.`;
+}
+
+function renderRzednaInfo(dane) {
+  const el = document.getElementById('rzedna-history-wrap');
+  const [a, b, c] = dane.wspolczynniki || [];
+  el.innerHTML = `
+    <p>Rzędna nie jest podawana wprost w codziennym komunikacie w sposób ściśle powiązany z pojemnością —
+    bywa aktualizowana rzadziej niż tabela pojemności. Dlatego liczymy ją samodzielnie na podstawie
+    empirycznej krzywej pojemność ↔ rzędna, dopasowanej do
+    <code>${dane.n_punktow_dopasowania ?? '—'}</code> historycznych par danych z zakresu
+    <code>${dane.zakres_modelu_mln_m3?.[0] ?? '—'}–${dane.zakres_modelu_mln_m3?.[1] ?? '—'} mln m³</code>.</p>
+    <p>Wzór (wielomian 2. stopnia):<br>
+    <code>rzedna = ${a ?? '?'} · poj² + ${b ?? '?'} · poj + ${c ?? '?'}</code></p>
+    <p>To przybliżenie empiryczne, nie oficjalna krzywa batymetryczna PGW Wody Polskie — poza podanym
+    zakresem pojemności wyniki mogą być zawodne (oznaczamy to wtedy osobnym ostrzeżeniem).</p>
+  `;
+}
+
+function initRzednaHistoryToggle() {
+  const btn = document.getElementById('rzedna-history-toggle');
+  const wrap = document.getElementById('rzedna-history-wrap');
+  btn.addEventListener('click', () => {
+    const otwarte = !wrap.hidden;
+    wrap.hidden = otwarte;
+    btn.classList.toggle('open', !otwarte);
+    btn.setAttribute('aria-expanded', String(!otwarte));
+    btn.childNodes[0].textContent = otwarte ? 'Jak to liczymy? ' : 'Ukryj wyjaśnienie ';
+  });
+}
+
+loadRzedna().then(dane => {
+  if (!dane) return;
+  renderRzednaBadge(dane);
+  renderRzednaMetrics(dane);
+  renderRzednaUpdated(dane);
+  renderRzednaInfo(dane);
+  initRzednaHistoryToggle();
+});
+</script>
+
+</body>
+</html>
