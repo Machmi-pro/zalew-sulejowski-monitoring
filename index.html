@@ -330,6 +330,49 @@
   tr.kap-bad td{ color:var(--alert); font-weight:700; }
   tr.kap-bad{ background: var(--alert-bg); }
   tr.kap-ok td{ color:var(--ink); }
+
+  /* --- NOWE: sekcja "Wyliczenie rzędnej" --- */
+  .rzedna-top{
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:0.6rem; margin-bottom:1.1rem;
+  }
+  .rzedna-metrics-wrap{
+    margin-bottom:1.1rem; padding-bottom:1.1rem;
+    border-bottom:1px solid var(--panel-border);
+  }
+  .rzedna-metrics{ display:flex; gap:1.9rem; flex-wrap:wrap; }
+  .rzedna-metric{ display:flex; flex-direction:column; gap:0.2rem; }
+  .rzedna-metric .value{ font-size:1.4rem; color:var(--ink); line-height:1; }
+  .rzedna-metric .value span{ font-size:0.78rem; color:var(--ink-dim); margin-left:0.15rem; }
+  .rzedna-metric .value.up{ color: var(--tide-deep); }
+  .rzedna-metric .value.down{ color: var(--alert); }
+  .rzedna-metric .label{
+    font-family:'SF Mono','Menlo',monospace; font-size:0.62rem;
+    letter-spacing:0.03em; text-transform:uppercase; color:var(--ink-dim);
+  }
+  .rzedna-source{
+    margin:0.9rem 0 0; font-size:0.74rem; color:var(--ink-dim);
+    font-family:'SF Mono','Menlo',monospace;
+  }
+
+  .rzedna-history-toggle{
+    display:inline-flex; align-items:center; gap:0.4rem;
+    background:none; border:1px solid var(--panel-border); border-radius:99px;
+    padding:0.4rem 0.9rem;
+    font-family:'SF Mono','Menlo',monospace; font-size:0.72rem; letter-spacing:0.02em;
+    color:var(--tide); cursor:pointer; transition: background .15s, color .15s;
+  }
+  .rzedna-history-toggle:hover{ background: var(--bg-soft); }
+  .rzedna-history-arrow{ display:inline-block; transition: transform .2s ease; }
+  .rzedna-history-toggle.open .rzedna-history-arrow{ transform: rotate(180deg); }
+
+  .rzedna-history-wrap{ margin-top:1rem; font-size:0.82rem; color:var(--ink-dim); line-height:1.6; }
+  .rzedna-history-wrap[hidden]{ display:none; }
+  .rzedna-history-wrap code{
+    background: var(--bg-soft); padding:0.1rem 0.35rem; border-radius:4px;
+    font-family:'SF Mono','Menlo',monospace; font-size:0.78rem;
+  }
+
 /* menu */
   .site-switcher{
   display:flex;
@@ -481,6 +524,32 @@
       </div>
     </div>
   </section>
+
+  <!-- ===================== NOWA SEKCJA: wyliczenie rzędnej ===================== -->
+  <section id="rzedna-section">
+    <h2>Wyliczenie rzędnej</h2>
+    <div class="chart-card">
+      <div class="rzedna-top">
+        <div class="status-badge" id="rzedna-badge">sprawdzam</div>
+      </div>
+
+      <div class="rzedna-metrics-wrap">
+        <div class="rzedna-metrics" id="rzedna-metrics">
+          <!-- generowane w JS -->
+        </div>
+        <p class="updated-note" id="rzedna-updated"></p>
+      </div>
+
+      <button type="button" class="rzedna-history-toggle" id="rzedna-history-toggle" aria-expanded="false">
+        Jak to liczymy? <span class="rzedna-history-arrow">▾</span>
+      </button>
+
+      <div class="rzedna-history-wrap" id="rzedna-history-wrap" hidden>
+        <!-- generowane w JS -->
+      </div>
+    </div>
+  </section>
+  <!-- =================== /NOWA SEKCJA: wyliczenie rzędnej ===================== -->
 
   <section>
     <h2>Dane źródłowe
@@ -896,6 +965,100 @@ loadKapielisko().then(dane => {
 
   const najnowszyRok = initKapSeasonToggle(dane.sezony, renderKapTable);
   renderKapTable(dane.sezony[najnowszyRok] || []);
+});
+
+/* ===================== NOWE: wyliczenie rzędnej ===================== */
+
+async function loadRzedna() {
+  try {
+    const res = await fetch('data/rzedna_wyliczenie.json?_=' + Date.now());
+    if (!res.ok) throw new Error('brak pliku danych wyliczenia rzędnej');
+    return res.json();
+  } catch (err) {
+    document.getElementById('rzedna-badge').textContent = 'brak danych';
+    console.warn('Rzędna: nie udało się wczytać danych —', err.message);
+    return null;
+  }
+}
+
+function formatujZmiane(cm) {
+  if (cm == null) return { text: '—', cls: '' };
+  const znak = cm > 0 ? '+' : '';
+  const cls = cm > 0 ? 'up' : (cm < 0 ? 'down' : '');
+  return { text: `${znak}${cm.toFixed(1)}`, cls };
+}
+
+function renderRzednaBadge(dane) {
+  const badge = document.getElementById('rzedna-badge');
+  if (dane.poza_zakresem_modelu) {
+    badge.textContent = 'poza zakresem modelu — ostrożnie';
+    badge.style.color = 'var(--caution)';
+  } else {
+    badge.textContent = 'w zakresie modelu';
+    badge.style.color = 'var(--tide)';
+  }
+}
+
+function renderRzednaMetrics(dane) {
+  const el = document.getElementById('rzedna-metrics');
+
+  const metric = (value, unit, label, cls) => `
+    <div class="rzedna-metric">
+      <div class="value ${cls || ''}">${value ?? '—'}<span>${unit}</span></div>
+      <div class="label">${label}</div>
+    </div>`;
+
+  const z1 = formatujZmiane(dane.zmiana_1d_cm);
+  const z14 = formatujZmiane(dane.zmiana_14d_cm);
+  const z30 = formatujZmiane(dane.zmiana_30d_cm);
+
+  el.innerHTML =
+    metric(dane.rzedna_wyliczona_m_npm?.toFixed(2), ' m n.p.m.', 'Rzędna wyliczona') +
+    metric(z1.text, ' cm', `1 dzień (vs ${dane.zmiana_1d_data_bazowa ?? '—'})`, z1.cls) +
+    metric(z14.text, ' cm', `14 dni (vs ${dane.zmiana_14d_data_bazowa ?? '—'})`, z14.cls) +
+    metric(z30.text, ' cm', `30 dni (vs ${dane.zmiana_30d_data_bazowa ?? '—'})`, z30.cls);
+}
+
+function renderRzednaUpdated(dane) {
+  const el = document.getElementById('rzedna-updated');
+  el.textContent = `Stan na ${dane.data} · rzędna z komunikatu: ${dane.rzedna_surowa_m_npm ?? '—'} m n.p.m.`;
+}
+
+function renderRzednaInfo(dane) {
+  const el = document.getElementById('rzedna-history-wrap');
+  const [a, b, c] = dane.wspolczynniki || [];
+  el.innerHTML = `
+    <p>Rzędna nie jest podawana wprost w codziennym komunikacie w sposób ściśle powiązany z pojemnością —
+    bywa aktualizowana rzadziej niż tabela pojemności. Dlatego liczymy ją samodzielnie na podstawie
+    empirycznej krzywej pojemność ↔ rzędna, dopasowanej do
+    <code>${dane.n_punktow_dopasowania ?? '—'}</code> historycznych par danych z zakresu
+    <code>${dane.zakres_modelu_mln_m3?.[0] ?? '—'}–${dane.zakres_modelu_mln_m3?.[1] ?? '—'} mln m³</code>.</p>
+    <p>Wzór (wielomian 2. stopnia):<br>
+    <code>rzedna = ${a ?? '?'} · poj² + ${b ?? '?'} · poj + ${c ?? '?'}</code></p>
+    <p>To przybliżenie empiryczne, nie oficjalna krzywa batymetryczna PGW Wody Polskie — poza podanym
+    zakresem pojemności wyniki mogą być zawodne (oznaczamy to wtedy osobnym ostrzeżeniem).</p>
+  `;
+}
+
+function initRzednaHistoryToggle() {
+  const btn = document.getElementById('rzedna-history-toggle');
+  const wrap = document.getElementById('rzedna-history-wrap');
+  btn.addEventListener('click', () => {
+    const otwarte = !wrap.hidden;
+    wrap.hidden = otwarte;
+    btn.classList.toggle('open', !otwarte);
+    btn.setAttribute('aria-expanded', String(!otwarte));
+    btn.childNodes[0].textContent = otwarte ? 'Jak to liczymy? ' : 'Ukryj wyjaśnienie ';
+  });
+}
+
+loadRzedna().then(dane => {
+  if (!dane) return;
+  renderRzednaBadge(dane);
+  renderRzednaMetrics(dane);
+  renderRzednaUpdated(dane);
+  renderRzednaInfo(dane);
+  initRzednaHistoryToggle();
 });
 </script>
 
