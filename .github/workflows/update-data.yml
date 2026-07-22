@@ -4,7 +4,7 @@ on:
   schedule:
     # UWAGA: godzina jest w UTC!
     # 0 11 * * * -> 11:00 UTC = 13:00 czasu polskiego (CEST, lato) / 12:00 (CET, zima)
-    - cron: '20 09 * * *'
+    - cron: '20 08 * * *'
   workflow_dispatch: {}
 
 permissions:
