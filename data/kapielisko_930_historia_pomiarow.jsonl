@@ -15,3 +15,4 @@
 {"pobrano_utc": "2026-07-22T11:26:28+00:00", "temp_wody_c": 20.0, "temp_powietrza_c": 18.0, "wiatr_ms": 3.0, "ocena_przydatna": true}
 {"pobrano_utc": "2026-07-23T11:25:50+00:00", "temp_wody_c": 20.0, "temp_powietrza_c": 17.0, "wiatr_ms": 5.0, "ocena_przydatna": true}
 {"pobrano_utc": "2026-07-25T09:59:07+00:00", "temp_wody_c": 21.0, "temp_powietrza_c": 20.0, "wiatr_ms": 2.0, "ocena_przydatna": false}
+{"pobrano_utc": "2026-07-26T10:11:16+00:00", "temp_wody_c": 20.0, "temp_powietrza_c": 24.0, "wiatr_ms": 4.0, "ocena_przydatna": false}
