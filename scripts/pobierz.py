@@ -38,6 +38,14 @@ DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "sulejow.json"
 # gdyby komunikat go akurat nie zawierał
 VNORM_FALLBACK = 75.1
 
+# Oczekiwany zakres poj_normalna_mln_m3 dla zbiornika Sulejów. Używany jako
+# sanity-check po dopasowaniu regexem - jeśli wartość wypadnie poza ten
+# zakres, prawie na pewno oznacza to, że regex złapał liczby z INNEGO wiersza
+# tabeli (np. innego zbiornika), a nie z wiersza Sulejowa. Zdarzyło się to
+# 2026-07-31, gdy regex przeskoczył przez kilka wierszy (w tym Włocławek
+# i Dębe, które mają inny układ kolumn) i dopasował się do wiersza Otmuchów.
+VNORM_MIN, VNORM_MAX = 60.0, 90.0
+
 
 def fetch_list_page():
     """
@@ -112,14 +120,22 @@ def extract_sulejow(pdf_bytes: bytes):
     with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
         full_text = "\n".join(page.extract_text() or "" for page in pdf.pages)
 
+    # UWAGA (naprawione 2026-07-31): poprzednia wersja używała "[^\d]*" między
+    # nazwą stacji a liczbami. "[^\d]*" dopasowuje też znaki nowej linii, więc
+    # gdy tekst tuż po "Zb. Sulejów" z jakiegoś powodu nie pasował do wzorca
+    # 8 liczb (np. inny układ PDF-a tego dnia), regex bez ostrzeżenia
+    # "przeskakiwał" przez kolejne wiersze tabeli (Wióry, Cieszanowice, Miedzna,
+    # Domaniów, Włocławek, Dębe - te dwa ostatnie mają zresztą inny format
+    # kolumn) aż w końcu dopasował się do PIERWSZEGO wiersza dalej w dokumencie,
+    # który przypadkiem pasował do wzorca 8 liczb - w praktyce był to wiersz
+    # zupełnie innego zbiornika (Otmuchów). Naprawa: ograniczamy przeszukiwanie
+    # do tej samej linii (max 80 znaków bez cyfry i bez \n), z opcjonalnie
+    # JEDNĄ dodatkową krótką linią na wypadek nagłówka "RZGW w ..." wplecionego
+    # w tabelę (obserwowane 2026-07-24).
     row = re.search(
-        r"Zb\.\s*Sulejów\s*"
-        r"[^\d]*"                        # pomiń dowolny tekst nienumeryczny między nazwą
-                                          # stacji a liczbami - obejmuje zarówno stary
-                                          # wariant "(Pilica)", jak i nowy z wplecionym
-                                          # nagłówkiem typu "RZGW w" (odkryte 2026-07-24,
-                                          # pdfplumber wypluł kolumnę zarządcy w innej
-                                          # kolejności niż resztę tabeli)
+        r"Zb\.\s*Sulejów"
+        r"[^\n\d]{0,80}"                 # tekst do liczb, ale BEZ przeskoku przez nową linię
+        r"(?:\n[^\d\n]{0,40})?"          # co najwyżej jedna dodatkowa linia bez cyfr (np. "RZGW w ...")
         r"(?:\d+\s+)?"                   # opcjonalny numer wiersza tabeli
         r"([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+(\d+)"
         r"(?:\s*\n?\s*\(Pilica\))?",     # wariant B: "(Pilica)" po liczbach (nowy układ PDF, odkryty 2026-07-13)
@@ -150,6 +166,20 @@ def extract_sulejow(pdf_bytes: bytes):
 
     vnorm = f(row.group(4))
     vakt = f(row.group(3))
+
+    # Sanity-check: jeśli poj_normalna wypada poza sensowny zakres dla
+    # Sulejowa, to prawie na pewno regex złapał zły wiersz tabeli (inny
+    # zbiornik). Lepiej głośno zawieść i zostawić stare dane niż po cichu
+    # zapisać wartości z innej stacji.
+    if not (VNORM_MIN <= vnorm <= VNORM_MAX):
+        print(
+            f"[OSTRZEŻENIE] poj_normalna_mln_m3={vnorm} jest poza oczekiwanym "
+            f"zakresem ({VNORM_MIN}-{VNORM_MAX}) dla zbiornika Sulejów. "
+            f"Prawdopodobnie regex dopasował wiersz innego zbiornika w tabeli. "
+            f"Dopasowany fragment (repr): {full_text[row.start():row.start()+250]!r}",
+            file=sys.stderr,
+        )
+        return None
 
     return {
         "odplyw_m3s": f(row.group(1)),
