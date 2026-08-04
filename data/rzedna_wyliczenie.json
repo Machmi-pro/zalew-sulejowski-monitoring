@@ -1,24 +1,24 @@
 {
-  "data": "2026-08-03",
-  "poj_aktualna_mln_m3": 51.1,
-  "rzedna_surowa_m_npm": 165.28,
-  "rzedna_wyliczona_m_npm": 165.239,
+  "data": "2026-08-04",
+  "poj_aktualna_mln_m3": 50.8,
+  "rzedna_surowa_m_npm": 165.2,
+  "rzedna_wyliczona_m_npm": 165.217,
   "poza_zakresem_modelu": false,
   "zakres_modelu_mln_m3": [
-    51.1,
+    50.8,
     74.7
   ],
-  "n_punktow_dopasowania": 44,
+  "n_punktow_dopasowania": 45,
   "stopien_wielomianu": 2,
   "wspolczynniki": [
-    -0.00010411,
-    0.06998565,
-    161.93428504
+    -0.00012592,
+    0.07282861,
+    161.84235223
   ],
-  "zmiana_1d_cm": -5.9,
-  "zmiana_1d_data_bazowa": "2026-07-31",
-  "zmiana_14d_cm": -30.5,
-  "zmiana_14d_data_bazowa": "2026-07-20",
-  "zmiana_30d_cm": -72.0,
+  "zmiana_1d_cm": -1.8,
+  "zmiana_1d_data_bazowa": "2026-08-03",
+  "zmiana_14d_cm": -32.1,
+  "zmiana_14d_data_bazowa": "2026-07-21",
+  "zmiana_30d_cm": -74.2,
   "zmiana_30d_data_bazowa": "2026-07-03"
 }
