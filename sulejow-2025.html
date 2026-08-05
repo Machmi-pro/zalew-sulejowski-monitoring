@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zalew Sulejowski — archiwum 2025</title>
+
+<meta name="description" content="Archiwalny przebieg poziomu wody i pojemności Zbiornika Sulejowskiego na Pilicy w 2025 roku, na podstawie komunikatów PGW Wody Polskie.">
+<link rel="canonical" href="https://machmi-pro.github.io/zalew-sulejowski-monitoring/sulejow-2025.html">
+
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#ffffff;
+    --bg-soft:#f4f8f8;
+    --panel-border:#dfe8e7;
+    --ink:#0e2a2a;
+    --ink-dim:#5c7876;
+    --tide:#1f8f80;
+    --tide-deep:#146b5f;
+    --alert:#c94a30;
+    --alert-bg:#fdeeea;
+    --caution:#b8791a;
+    --caution-bg:#fdf3e3;
+    --ok-bg:#e9f6f2;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--bg);
+    color:var(--ink);
+    font-family: 'Iowan Old Style', 'Georgia', serif;
+    min-height:100vh;
+    padding: 0 0 4rem;
+  }
+  .mono{ font-family: 'SF Mono','Menlo','Consolas',monospace; letter-spacing:0.02em; }
+
+  header{
+    padding: 2.75rem 1.25rem 1.75rem;
+    max-width: 960px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--panel-border);
+  }
+  .eyebrow{
+    font-family:'SF Mono','Menlo',monospace;
+    font-size:0.7rem;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--tide);
+    margin:0 0 0.6rem;
+  }
+  h1{
+    font-size: clamp(1.6rem, 6vw, 2.6rem);
+    font-weight:500;
+    margin:0 0 0.5rem;
+    color:var(--ink);
+    line-height:1.15;
+  }
+  .subtitle{ color:var(--ink-dim); font-size:0.98rem; max-width:56ch; margin:0; }
+
+  main{ max-width:960px; margin:0 auto; padding: 1.75rem 1.25rem 0; }
+
+  /* --- wskaźnik napełnienia zbiornika --- */
+  .status-panel{
+    display:grid;
+    grid-template-columns: 90px 1fr;
+    gap: 1.5rem;
+    align-items:stretch;
+    background: var(--bg-soft);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .gauge-wrap{ display:flex; flex-direction:column; align-items:center; gap:0.5rem;}
+  .gauge{
+    position:relative;
+    width: 38px;
+    height: 190px;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    overflow:hidden;
+    background: #ffffff;
+  }
+  .gauge-fill{
+    position:absolute; bottom:0; left:0; right:0;
+    background: linear-gradient(180deg, var(--tide), var(--tide-deep));
+    transition: height 1.2s cubic-bezier(.22,.9,.34,1);
+  }
+  .gauge-line{
+    position:absolute; left:-5px; right:-5px; height:1px;
+    background: #b7c7c5;
+  }
+  .gauge-line span{
+    position:absolute; right: 44px; top:-7px;
+    font-size:0.6rem; color: var(--ink-dim); white-space:nowrap;
+  }
+  .gauge-caption{ font-size:0.65rem; color:var(--ink-dim); text-align:center; line-height:1.3; }
+
+  .status-copy{ display:flex; flex-direction:column; justify-content:center; }
+  .status-value{
+    font-size: clamp(2rem, 7vw, 3rem);
+    line-height:1;
+    margin:0;
+    color: var(--ink);
+  }
+  .status-value span{ font-size:1rem; color:var(--ink-dim); margin-left:0.4rem; }
+  .status-label{ margin:0.4rem 0 0.9rem; font-size:0.92rem; color:var(--ink-dim); line-height:1.7; }
+  .status-badge{
+    display:inline-flex; align-items:center; gap:0.5rem;
+    font-family:'SF Mono','Menlo',monospace; font-size:0.72rem; letter-spacing:0.04em;
+    padding: 0.35rem 0.7rem; border-radius:99px; width:fit-content;
+    border:1px solid currentColor;
+  }
+
+  section h2{
+    font-size:1.05rem; font-weight:600; color:var(--ink);
+    margin: 0 0 1rem; padding-top: 0.25rem;
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.6rem;
+  }
+  .range-toggle{
+    display:inline-flex; gap:0.25rem;
+    background: var(--bg-soft); border:1px solid var(--panel-border);
+    border-radius:99px; padding:2px;
+  }
+  .range-btn{
+    font-family:'SF Mono','Menlo',monospace; font-size:0.68rem; letter-spacing:0.02em;
+    border:none; background:transparent; color:var(--ink-dim);
+    padding:0.32rem 0.7rem; border-radius:99px; cursor:pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .range-btn.active{ background: var(--tide); color:#fff; }
+  .chart-card{
+    background: #ffffff;
+    border: 1px solid var(--panel-border);
+    border-radius:10px;
+    padding: 1.25rem 1.1rem 1rem;
+    margin-bottom: 2rem;
+  }
+  .legend-row{
+    display:flex; gap:1.25rem; flex-wrap:wrap;
+    font-size:0.76rem; color:var(--ink-dim); margin-top:0.9rem;
+  }
+  .legend-row span{ display:inline-flex; align-items:center; gap:0.4rem; }
+  .swatch{ width:14px; height:3px; display:inline-block; }
+
+  /* ---------- TABELA: pełna wersja na szerokich ekranach ---------- */
+  table{ width:100%; border-collapse:collapse; font-size:0.85rem; }
+  th,td{ padding:0.55rem 0.5rem; text-align:right; border-bottom:1px solid var(--panel-border); }
+  th:first-child, td:first-child{ text-align:left; }
+  th{ color:var(--ink-dim); font-weight:600; font-family:'SF Mono','Menlo',monospace; font-size:0.66rem; letter-spacing:0.03em; text-transform:uppercase;}
+  tr.below-comfort td{ color: var(--caution); }
+  tr.below-critical td{ color: var(--alert); font-weight:700; }
+  tr.below-comfort{ background: var(--caution-bg); }
+  tr.below-critical{ background: var(--alert-bg); }
+
+  /* ---------- RWD: poniżej 640px tabela zamienia się w listę kart ---------- */
+  @media (max-width: 640px){
+    table, thead, tbody, th, td, tr{ display:block; }
+    thead{ position:absolute; top:-9999px; left:-9999px; }
+    table{ border:none; }
+    tbody tr{
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      padding: 0.6rem 0.75rem;
+      background:#fff;
+    }
+    tr.below-comfort{ background: var(--caution-bg); border-color: var(--caution); }
+    tr.below-critical{ background: var(--alert-bg); border-color: var(--alert); }
+    td{
+      display:flex; justify-content:space-between; align-items:center;
+      text-align:right; border:none; padding: 0.28rem 0;
+    }
+    td::before{
+      content: attr(data-label);
+      font-family:'SF Mono','Menlo',monospace; font-size:0.66rem;
+      letter-spacing:0.03em; text-transform:uppercase; color:var(--ink-dim);
+      text-align:left; padding-right:0.75rem;
+    }
+    td:first-child{ font-weight:600; font-size:0.95rem; padding-bottom:0.4rem; border-bottom:1px dashed var(--panel-border); margin-bottom:0.2rem; }
+    td:first-child::before{ content: ''; }
+  }
+
+  footer{
+    max-width:960px; margin: 1.5rem auto 0; padding: 1.25rem;
+    color: var(--ink-dim); font-size:0.76rem; border-top:1px solid var(--panel-border);
+  }
+  footer a{ color: var(--tide); }
+
+  .updated-note{ font-size:0.74rem; color: var(--ink-dim); margin-top:0.75rem; font-family:'SF Mono','Menlo',monospace;}
+  .updated-note a{ color: var(--tide); }
+
+  @media (max-width: 480px){
+    .status-panel{ grid-template-columns: 70px 1fr; gap:1rem; padding:1.1rem;}
+    .gauge{ height:150px; width:30px; }
+  }
+
+  /* menu */
+  .site-switcher{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:0.4rem;
+    background: var(--tide-deep);
+    padding:0.5rem 1rem;
+    font-family:'SF Mono','Menlo',monospace;
+    font-size:0.7rem;
+    letter-spacing:0.02em;
+    position:relative;
+  }
+  .site-switcher a{
+    color:rgba(255,255,255,0.65);
+    text-decoration:none;
+    padding:0.3rem 0.75rem;
+    border-radius:99px;
+    transition: background .15s, color .15s;
+  }
+  .site-switcher a:hover{ color:#fff; }
+  .site-switcher a.active{
+    color:#fff;
+    background: rgba(255,255,255,0.15);
+    font-weight:600;
+  }
+
+  /* rozwijana lista lat archiwum */
+  .archive-dropdown{ position:relative; }
+  .archive-dropdown summary{
+    list-style:none;
+    cursor:pointer;
+    color:rgba(255,255,255,0.65);
+    padding:0.3rem 0.75rem;
+    border-radius:99px;
+    transition: background .15s, color .15s;
+    display:flex; align-items:center; gap:0.3rem;
+  }
+  .archive-dropdown summary::-webkit-details-marker{ display:none; }
+  .archive-dropdown summary:hover{ color:#fff; }
+  .archive-dropdown[open] summary,
+  .archive-dropdown.active summary{
+    color:#fff;
+    background: rgba(255,255,255,0.15);
+    font-weight:600;
+  }
+  .archive-caret{ font-size:0.6rem; transition: transform .15s; }
+  .archive-dropdown[open] .archive-caret{ transform: rotate(180deg); }
+  .archive-menu{
+    position:absolute;
+    top:calc(100% + 6px);
+    left:50%;
+    transform:translateX(-50%);
+    background:#fff;
+    border:1px solid var(--panel-border);
+    border-radius:8px;
+    padding:0.35rem;
+    box-shadow:0 6px 18px rgba(14,42,42,0.15);
+    display:flex;
+    flex-direction:column;
+    min-width:120px;
+    z-index:10;
+  }
+  .archive-menu a{
+    color:var(--ink);
+    padding:0.4rem 0.6rem;
+    border-radius:6px;
+    font-size:0.72rem;
+  }
+  .archive-menu a:hover{ background: var(--bg-soft); color:var(--tide-deep); }
+  .archive-menu a.current{ color:var(--tide); font-weight:600; }
+</style>
+</head>
+<body>
+<nav class="site-switcher">
+  <a href="https://machmi-pro.github.io/zalew-sulejowski-monitoring/">Zalew Sulejowski</a>
+  <details class="archive-dropdown active">
+    <summary>Archiwum <span class="archive-caret">▾</span></summary>
+    <div class="archive-menu">
+      <a href="sulejow-2025.html" class="current">2025</a>
+      <!-- kolejne lata dopisujesz tu, np.: -->
+      <!-- <a href="sulejow-2024.html">2024</a> -->
+      <!-- <a href="sulejow-2023.html">2023</a> -->
+    </div>
+  </details>
+  <a href="https://machmi-pro.github.io/pilica-monitoring/">Pilica</a>
+</nav>
+
+<header>
+  <p class="eyebrow">Zbiornik Sulejów &middot; Pilica &middot; Archiwum 2025</p>
+  <h1>Zalew Sulejowski — przebieg w 2025 roku</h1>
+  <p class="subtitle">
+    Archiwalny przebieg pojemności i poziomu wody na podstawie codziennych komunikatów PGW Wody Polskie z 2025 roku.
+  </p>
+</header>
+
+<main>
+
+  <div class="status-panel">
+    <div class="gauge-wrap">
+      <div class="gauge" id="gauge">
+        <div class="gauge-line" id="line-max"><span>Vmax</span></div>
+        <div class="gauge-line" id="line-comfort"><span>komfort</span></div>
+        <div class="gauge-line" id="line-critical"><span>krytyczny</span></div>
+        <div class="gauge-fill" id="gauge-fill"></div>
+      </div>
+      <p class="gauge-caption">poziom<br>wzgl. Vmax</p>
+    </div>
+    <div class="status-copy">
+      <p class="status-value" id="latest-value">— <span>mln m³</span></p>
+      <p class="status-label" id="latest-label">Ładowanie danych…</p>
+      <div class="status-badge" id="status-badge">sprawdzam</div>
+      <p class="updated-note" id="updated-note"></p>
+    </div>
+  </div>
+
+  <section>
+    <h2>Pojemność w 2025 roku
+      <span class="range-toggle" id="range-toggle">
+        <button type="button" class="range-btn" data-range="30" id="btn-range-30">30 dni</button>
+        <button type="button" class="range-btn" data-range="all" id="btn-range-all">Cały rok</button>
+      </span>
+    </h2>
+    <div class="chart-card">
+      <canvas id="chart" height="260"></canvas>
+      <div class="legend-row">
+        <span><i class="swatch" style="background:var(--tide)"></i> pojemność aktualna</span>
+        <span><i class="swatch" style="background:var(--caution)"></i> minimum komfortu (65 mln m³)</span>
+        <span><i class="swatch" style="background:var(--alert)"></i> poziom krytyczny (45 mln m³)</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Dane źródłowe — 2025
+      <span class="range-toggle" id="table-range-toggle">
+        <button type="button" class="range-btn" data-range="30" id="btn-table-range-30">30 dni</button>
+        <button type="button" class="range-btn" data-range="all" id="btn-table-range-all">Cały rok</button>
+      </span>
+    </h2>
+    <div class="chart-card">
+      <table>
+        <thead>
+          <tr><th>Data</th><th>Rzędna [m n.p.m.]</th><th>Pojemność [mln m³]</th><th>Napełnienie [%]</th><th>Dopływ [m³/s]</th><th>Odpływ [m³/s]</th><th>Rezerwa [mln m³]</th></tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Źródło: <a href="https://www.gov.pl/web/wody-polskie/sytuacja-hydrologiczna" target="_blank" rel="noopener">PGW Wody Polskie — Sytuacja hydrologiczna</a>.
+  Próg krytyczny (45 mln m³) i minimum komfortu (65 mln m³) to wartości robocze ustalone przez autora strony, nie oficjalne progi instrukcji gospodarowania wodą.
+  Strona prezentuje dane archiwalne z 2025 roku.
+</footer>
+
+<script>
+const CRITICAL = 45;
+const COMFORT = 65;
+const VMAX = 84.3; // pojemność maksymalna zbiornika, do skalowania wskaźnika
+
+async function loadData() {
+  const res = await fetch('data/sulejow-2025.json?_=' + Date.now());
+  if (!res.ok) throw new Error('Nie udało się wczytać danych');
+  return res.json();
+}
+
+function statusFor(value) {
+  if (value < CRITICAL) return { label: 'Poniżej poziomu krytycznego', color: 'var(--alert)', word: 'krytyczny' };
+  if (value < COMFORT) return { label: 'Poniżej minimum komfortu', color: 'var(--caution)', word: 'ostrzeżenie' };
+  return { label: 'W normie, powyżej minimum komfortu', color: 'var(--tide)', word: 'w normie' };
+}
+
+function renderGauge(latest) {
+  const pct = Math.max(0, Math.min(100, (latest.poj_aktualna_mln_m3 / VMAX) * 100));
+  document.getElementById('gauge-fill').style.height = pct + '%';
+  document.getElementById('gauge-fill').style.background =
+    latest.poj_aktualna_mln_m3 < CRITICAL ? 'linear-gradient(180deg,#e0684a,#c94a30)' :
+    latest.poj_aktualna_mln_m3 < COMFORT ? 'linear-gradient(180deg,#e0a94a,#b8791a)' :
+    'linear-gradient(180deg,#3fb6a8,#146b5f)';
+
+  const setLine = (id, valueAtLine) => {
+    const p = Math.max(0, Math.min(100, (valueAtLine / VMAX) * 100));
+    document.getElementById(id).style.bottom = p + '%';
+  };
+  setLine('line-max', VMAX);
+  setLine('line-comfort', COMFORT);
+  setLine('line-critical', CRITICAL);
+}
+
+function renderStatus(latest) {
+  document.getElementById('latest-value').innerHTML =
+    latest.poj_aktualna_mln_m3.toFixed(1) + ' <span>mln m³</span>';
+  const st = statusFor(latest.poj_aktualna_mln_m3);
+
+  const doplyw = latest.doplyw_m3s != null ? latest.doplyw_m3s.toFixed(1) : '—';
+  const odplyw = latest.odplyw_m3s != null ? latest.odplyw_m3s.toFixed(1) : '—';
+
+  document.getElementById('latest-label').innerHTML =
+    `${st.label}<br>` +
+    `napełnienie ${latest.napelnienie_procent}%<br>` +
+    `rzędna ${latest.rzedna_m_npm ?? '—'} m n.p.m.<br>` +
+    `dopływ ${doplyw} m³/s<br>` +
+    `odpływ ${odplyw} m³/s`;
+
+  const badge = document.getElementById('status-badge');
+  badge.textContent = st.word;
+  badge.style.color = st.color;
+  document.getElementById('updated-note').textContent = 'Ostatni wpis w archiwum: ' + latest.data;
+}
+
+function renderTable(rows, range) {
+  const filtered = filterByRange(rows, range);
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = '';
+  [...filtered].reverse().forEach(r => {
+    const tr = document.createElement('tr');
+    if (r.poj_aktualna_mln_m3 < CRITICAL) tr.className = 'below-critical';
+    else if (r.poj_aktualna_mln_m3 < COMFORT) tr.className = 'below-comfort';
+    tr.innerHTML =
+      `<td data-label="Data">${r.data}</td>` +
+      `<td data-label="Rzędna [m n.p.m.]">${r.rzedna_m_npm ?? '—'}</td>` +
+      `<td data-label="Pojemność [mln m³]">${r.poj_aktualna_mln_m3.toFixed(1)}</td>` +
+      `<td data-label="Napełnienie [%]">${r.napelnienie_procent}</td>` +
+      `<td data-label="Dopływ [m³/s]">${r.doplyw_m3s.toFixed(1)}</td>` +
+      `<td data-label="Odpływ [m³/s]">${r.odplyw_m3s.toFixed(1)}</td>` +
+      `<td data-label="Rezerwa [mln m³]">${r.rezerwa_aktualna_mln_m3.toFixed(1)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+let chartInstance = null;
+let allRows = [];
+let currentRange = 'all'; // dla archiwum domyślnie cały rok
+
+function filterByRange(rows, range) {
+  if (range === 'all') return rows;
+  const cutoff = new Date(rows[rows.length - 1].data);
+  cutoff.setDate(cutoff.getDate() - 30);
+  return rows.filter(r => new Date(r.data) >= cutoff);
+}
+
+function renderChart(rows, range) {
+  const filtered = filterByRange(rows, range);
+  const many = filtered.length > 20;
+
+  const ctx = document.getElementById('chart').getContext('2d');
+  if (chartInstance) chartInstance.destroy();
+
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: filtered.map(r => r.data.slice(5)),
+      datasets: [
+        {
+          label: 'Pojemność aktualna (mln m³)',
+          data: filtered.map(r => r.poj_aktualna_mln_m3),
+          borderColor: '#1f8f80',
+          backgroundColor: 'rgba(31,143,128,0.10)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: many ? 1.5 : 2,
+          pointRadius: many ? 1.5 : 3,
+          pointHoverRadius: 5,
+          pointBackgroundColor: '#1f8f80',
+        },
+        {
+          label: 'Minimum komfortu',
+          data: filtered.map(() => COMFORT),
+          borderColor: '#b8791a',
+          borderDash: [5, 4],
+          pointRadius: 0,
+        },
+        {
+          label: 'Poziom krytyczny',
+          data: filtered.map(() => CRITICAL),
+          borderColor: '#c94a30',
+          borderDash: [5, 4],
+          pointRadius: 0,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          min: 0, max: 90,
+          ticks: { color: '#5c7876' },
+          grid: { color: 'rgba(14,42,42,0.06)' },
+          title: { display: true, text: 'mln m³', color: '#5c7876' },
+        },
+        x: {
+          ticks: {
+            color: '#5c7876',
+            autoSkip: true,
+            maxRotation: 0,
+            maxTicksLimit: many ? 10 : undefined,
+          },
+          grid: { color: 'rgba(14,42,42,0.03)' },
+        },
+      },
+    },
+  });
+}
+
+function setActiveRangeButton(range) {
+  document.getElementById('btn-range-30').classList.toggle('active', range === '30');
+  document.getElementById('btn-range-all').classList.toggle('active', range === 'all');
+}
+
+function initRangeToggle() {
+  document.getElementById('btn-range-30').addEventListener('click', () => {
+    if (currentRange === '30') return;
+    currentRange = '30';
+    setActiveRangeButton('30');
+    renderChart(allRows, '30');
+  });
+  document.getElementById('btn-range-all').addEventListener('click', () => {
+    if (currentRange === 'all') return;
+    currentRange = 'all';
+    setActiveRangeButton('all');
+    renderChart(allRows, 'all');
+  });
+}
+
+let tableRange = 'all'; // dla archiwum domyślnie cały rok
+
+function setActiveTableRangeButton(range) {
+  document.getElementById('btn-table-range-30').classList.toggle('active', range === '30');
+  document.getElementById('btn-table-range-all').classList.toggle('active', range === 'all');
+}
+
+function initTableRangeToggle() {
+  document.getElementById('btn-table-range-30').addEventListener('click', () => {
+    if (tableRange === '30') return;
+    tableRange = '30';
+    setActiveTableRangeButton('30');
+    renderTable(allRows, tableRange);
+  });
+  document.getElementById('btn-table-range-all').addEventListener('click', () => {
+    if (tableRange === 'all') return;
+    tableRange = 'all';
+    setActiveTableRangeButton('all');
+    renderTable(allRows, tableRange);
+  });
+}
+
+loadData()
+  .then(rows => {
+    if (!rows.length) throw new Error('Brak danych');
+    allRows = rows;
+    renderGauge(rows[rows.length - 1]);
+    renderStatus(rows[rows.length - 1]);
+    setActiveRangeButton(currentRange);
+    initRangeToggle();
+    renderChart(allRows, currentRange);
+    setActiveTableRangeButton(tableRange);
+    initTableRangeToggle();
+    renderTable(allRows, tableRange);
+  })
+  .catch(err => {
+    document.getElementById('latest-label').textContent = 'Błąd wczytywania danych: ' + err.message;
+  });
+</script>
+
+</body>
+</html>
