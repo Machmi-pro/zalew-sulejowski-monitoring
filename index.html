@@ -375,35 +375,89 @@
 
 /* menu */
   .site-switcher{
-  display:flex;
-  justify-content:center;
-  gap:0.4rem;
-  background: var(--tide-deep);
-  padding:0.5rem 1rem;
-  font-family:'SF Mono','Menlo',monospace;
-  font-size:0.7rem;
-  letter-spacing:0.02em;
-}
-.site-switcher a{
-  color:rgba(255,255,255,0.65);
-  text-decoration:none;
-  padding:0.3rem 0.75rem;
-  border-radius:99px;
-  transition: background .15s, color .15s;
-}
-.site-switcher a:hover{ color:#fff; }
-.site-switcher a.active{
-  color:#fff;
-  background: rgba(255,255,255,0.15);
-  font-weight:600;
-}
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:0.4rem;
+    background: var(--tide-deep);
+    padding:0.5rem 1rem;
+    font-family:'SF Mono','Menlo',monospace;
+    font-size:0.7rem;
+    letter-spacing:0.02em;
+    position:relative;
+  }
+  .site-switcher a{
+    color:rgba(255,255,255,0.65);
+    text-decoration:none;
+    padding:0.3rem 0.75rem;
+    border-radius:99px;
+    transition: background .15s, color .15s;
+  }
+  .site-switcher a:hover{ color:#fff; }
+  .site-switcher a.active{
+    color:#fff;
+    background: rgba(255,255,255,0.15);
+    font-weight:600;
+  }
 
-
+  /* rozwijana lista lat archiwum */
+  .archive-dropdown{ position:relative; }
+  .archive-dropdown summary{
+    list-style:none;
+    cursor:pointer;
+    color:rgba(255,255,255,0.65);
+    padding:0.3rem 0.75rem;
+    border-radius:99px;
+    transition: background .15s, color .15s;
+    display:flex; align-items:center; gap:0.3rem;
+  }
+  .archive-dropdown summary::-webkit-details-marker{ display:none; }
+  .archive-dropdown summary:hover{ color:#fff; }
+  .archive-dropdown[open] summary,
+  .archive-dropdown.active summary{
+    color:#fff;
+    background: rgba(255,255,255,0.15);
+    font-weight:600;
+  }
+  .archive-caret{ font-size:0.6rem; transition: transform .15s; }
+  .archive-dropdown[open] .archive-caret{ transform: rotate(180deg); }
+  .archive-menu{
+    position:absolute;
+    top:calc(100% + 6px);
+    left:50%;
+    transform:translateX(-50%);
+    background:#fff;
+    border:1px solid var(--panel-border);
+    border-radius:8px;
+    padding:0.35rem;
+    box-shadow:0 6px 18px rgba(14,42,42,0.15);
+    display:flex;
+    flex-direction:column;
+    min-width:120px;
+    z-index:10;
+  }
+  .archive-menu a{
+    color:var(--ink);
+    padding:0.4rem 0.6rem;
+    border-radius:6px;
+    font-size:0.72rem;
+  }
+  .archive-menu a:hover{ background: var(--bg-soft); color:var(--tide-deep); }
+  .archive-menu a.current{ color:var(--tide); font-weight:600; }
 </style>
 </head>
 <body>
 <nav class="site-switcher">
   <a href="https://machmi-pro.github.io/zalew-sulejowski-monitoring/" class="active">Zalew Sulejowski</a>
+  <details class="archive-dropdown">
+    <summary>Archiwum <span class="archive-caret">▾</span></summary>
+    <div class="archive-menu">
+      <a href="sulejow-2025.html">2025</a>
+      <!-- kolejne lata dopisujesz tu, np.: -->
+      <!-- <a href="sulejow-2024.html">2024</a> -->
+      <!-- <a href="sulejow-2023.html">2023</a> -->
+    </div>
+  </details>
   <a href="https://machmi-pro.github.io/pilica-monitoring/">Pilica</a>
 </nav>
 
