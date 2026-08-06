@@ -45,8 +45,10 @@ MIN_PUNKTOW_DO_DOPASOWANIA = 8
 
 OKRESY_PORCJI = [
     ("1d", 1),
+    ("7d", 7),
     ("14d", 14),
     ("30d", 30),
+    ("60d", 60),
 ]
 
 
