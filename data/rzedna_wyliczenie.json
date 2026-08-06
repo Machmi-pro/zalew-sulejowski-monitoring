@@ -17,8 +17,12 @@
   ],
   "zmiana_1d_cm": -1.8,
   "zmiana_1d_data_bazowa": "2026-08-04",
+  "zmiana_7d_cm": -15.7,
+  "zmiana_7d_data_bazowa": "2026-07-29",
   "zmiana_14d_cm": -31.1,
   "zmiana_14d_data_bazowa": "2026-07-22",
   "zmiana_30d_cm": -68.4,
-  "zmiana_30d_data_bazowa": "2026-07-06"
+  "zmiana_30d_data_bazowa": "2026-07-06",
+  "zmiana_60d_cm": -117.1,
+  "zmiana_60d_data_bazowa": "2026-06-05"
 }
