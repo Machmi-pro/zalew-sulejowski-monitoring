@@ -1063,14 +1063,18 @@ function renderRzednaMetrics(dane) {
     </div>`;
 
   const z1 = formatujZmiane(dane.zmiana_1d_cm);
+  const z7 = formatujZmiane(dane.zmiana_7d_cm);
   const z14 = formatujZmiane(dane.zmiana_14d_cm);
   const z30 = formatujZmiane(dane.zmiana_30d_cm);
+  const z60 = formatujZmiane(dane.zmiana_60d_cm);
 
   el.innerHTML =
     metric(dane.rzedna_wyliczona_m_npm?.toFixed(2), ' m n.p.m.', 'Rzędna wyliczona') +
     metric(z1.text, ' cm', `1 dzień (vs ${dane.zmiana_1d_data_bazowa ?? '—'})`, z1.cls) +
+    metric(z7.text, ' cm', `7 dni (vs ${dane.zmiana_7d_data_bazowa ?? '—'})`, z7.cls) +
     metric(z14.text, ' cm', `14 dni (vs ${dane.zmiana_14d_data_bazowa ?? '—'})`, z14.cls) +
-    metric(z30.text, ' cm', `30 dni (vs ${dane.zmiana_30d_data_bazowa ?? '—'})`, z30.cls);
+    metric(z30.text, ' cm', `30 dni (vs ${dane.zmiana_30d_data_bazowa ?? '—'})`, z30.cls) +
+    metric(z60.text, ' cm', `60 dni (vs ${dane.zmiana_60d_data_bazowa ?? '—'})`, z60.cls);
 }
 
 function renderRzednaUpdated(dane) {
