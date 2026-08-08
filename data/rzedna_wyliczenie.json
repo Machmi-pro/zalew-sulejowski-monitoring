@@ -24,5 +24,9 @@
   "zmiana_30d_cm": -68.7,
   "zmiana_30d_data_bazowa": "2026-07-08",
   "zmiana_60d_cm": -122.5,
-  "zmiana_60d_data_bazowa": "2026-06-05"
+  "zmiana_60d_data_bazowa": "2026-06-05",
+  "zmiana_90d_cm": -143.5,
+  "zmiana_90d_data_bazowa": "2026-05-05",
+  "zmiana_120d_cm": -139.8,
+  "zmiana_120d_data_bazowa": "2026-04-09"
 }
