@@ -1067,6 +1067,8 @@ function renderRzednaMetrics(dane) {
   const z14 = formatujZmiane(dane.zmiana_14d_cm);
   const z30 = formatujZmiane(dane.zmiana_30d_cm);
   const z60 = formatujZmiane(dane.zmiana_60d_cm);
+  const z90 = formatujZmiane(dane.zmiana_90d_cm);
+  const z120 = formatujZmiane(dane.zmiana_120d_cm);
 
   el.innerHTML =
     metric(dane.rzedna_wyliczona_m_npm?.toFixed(2), ' m n.p.m.', 'Rzędna wyliczona') +
@@ -1074,7 +1076,9 @@ function renderRzednaMetrics(dane) {
     metric(z7.text, ' cm', `7 dni (vs ${dane.zmiana_7d_data_bazowa ?? '—'})`, z7.cls) +
     metric(z14.text, ' cm', `14 dni (vs ${dane.zmiana_14d_data_bazowa ?? '—'})`, z14.cls) +
     metric(z30.text, ' cm', `30 dni (vs ${dane.zmiana_30d_data_bazowa ?? '—'})`, z30.cls) +
-    metric(z60.text, ' cm', `60 dni (vs ${dane.zmiana_60d_data_bazowa ?? '—'})`, z60.cls);
+    metric(z60.text, ' cm', `60 dni (vs ${dane.zmiana_60d_data_bazowa ?? '—'})`, z60.cls) +
+    metric(z90.text, ' cm', `90 dni (vs ${dane.zmiana_90d_data_bazowa ?? '—'})`, z90.cls) +
+    metric(z120.text, ' cm', `120 dni (vs ${dane.zmiana_120d_data_bazowa ?? '—'})`, z120.cls);
 }
 
 function renderRzednaUpdated(dane) {
