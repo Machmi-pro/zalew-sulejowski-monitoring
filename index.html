@@ -1083,8 +1083,9 @@ function renderRzednaMetrics(dane) {
 
 function renderRzednaUpdated(dane) {
   const el = document.getElementById('rzedna-updated');
-  el.textContent = `Stan na ${dane.data} · rzędna z komunikatu: ${dane.rzedna_surowa_m_npm ?? '—'} m n.p.m.<br> <sup>*</sup>w poniedziałki porównanie jest względem piątku`;
+  el.innerHTML = `Stan na ${dane.data} · rzędna z komunikatu: ${dane.rzedna_surowa_m_npm ?? '—'} m n.p.m.<br> <sup>*</sup>w poniedziałki porównanie jest względem piątku`;
 }
+
 
 function renderRzednaInfo(dane) {
   const el = document.getElementById('rzedna-history-wrap');
