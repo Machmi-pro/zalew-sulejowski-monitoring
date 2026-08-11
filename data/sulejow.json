@@ -644,5 +644,19 @@
     "napelnienie_procent": 64.7,
     "data": "2026-08-10",
     "zrodlo_url": "https://www.gov.pl/attachment/889d4f11-90cf-46c0-9d8c-271dc6fd0bc5"
+  },
+  {
+    "odplyw_m3s": 11.0,
+    "doplyw_m3s": 9.1,
+    "poj_aktualna_mln_m3": 48.3,
+    "poj_normalna_mln_m3": 75.1,
+    "poj_max_mln_m3": 84.3,
+    "rezerwa_wymagana_mln_m3": 9.2,
+    "rezerwa_aktualna_mln_m3": 36.0,
+    "rezerwa_procent": 391,
+    "rzedna_m_npm": 165.04,
+    "napelnienie_procent": 64.3,
+    "data": "2026-08-11",
+    "zrodlo_url": "https://www.gov.pl/attachment/b78343ba-adb1-4930-b9df-ea182819617e"
   }
 ]
