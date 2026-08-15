@@ -2,25 +2,33 @@
   "kapielisko_id": 930,
   "nazwa": "Kapielisko na sztucznym zbiorniku rzeki Pilicy (Zalew Sulejowski)",
   "zrodlo_url": "https://sk.gis.gov.pl/kapielisko/930",
-  "pobrano_utc": "2026-08-14T09:18:43+00:00",
+  "pobrano_utc": "2026-08-15T08:43:38+00:00",
   "warunki": {
-    "temp_wody_c": 23.0,
+    "temp_wody_c": 24.0,
     "temp_powietrza_c": 22.0,
-    "wiatr_ms": 2.0,
-    "data_pomiaru": "2026-08-14"
+    "wiatr_ms": 1.0,
+    "data_pomiaru": "2026-08-15"
   },
   "ocena_aktualna": {
-    "ocena_tekst": "Woda nieprzydatna do kąpieli",
-    "przydatna": false,
-    "data_oceny": "2026-08-12",
+    "ocena_tekst": "Woda przydatna do kąpieli",
+    "przydatna": true,
+    "data_oceny": "2026-08-14",
     "nastepne_badanie": "2026-08-17"
   },
   "alert": {
-    "poziom": "warn",
-    "komunikat": "Woda NIEPRZYDATNA do kapieli"
+    "poziom": "ok",
+    "komunikat": "Woda przydatna do kapieli"
   },
   "sezony": {
     "2026": [
+      {
+        "data_oceny": "2026-08-14",
+        "ocena": "Woda przydatna do kąpieli",
+        "przyczyna": null,
+        "e_coli": null,
+        "enterokoki": null,
+        "nastepne_badanie": "2026-08-17"
+      },
       {
         "data_oceny": "2026-08-12",
         "ocena": "Woda nieprzydatna do kąpieli",
