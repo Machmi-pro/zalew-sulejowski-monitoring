@@ -1,32 +1,32 @@
 {
-  "data": "2026-09-01",
-  "poj_aktualna_mln_m3": 40.0,
-  "rzedna_surowa_m_npm": 164.48,
-  "rzedna_wyliczona_m_npm": 164.485,
+  "data": "2026-09-02",
+  "poj_aktualna_mln_m3": 39.6,
+  "rzedna_surowa_m_npm": 164.45,
+  "rzedna_wyliczona_m_npm": 164.457,
   "poza_zakresem_modelu": false,
   "zakres_modelu_mln_m3": [
-    40.0,
+    39.6,
     74.7
   ],
-  "n_punktow_dopasowania": 64,
+  "n_punktow_dopasowania": 65,
   "stopien_wielomianu": 2,
   "wspolczynniki": [
-    -0.00025849,
-    0.0897297,
-    161.30951727
+    -0.00026105,
+    0.09004076,
+    161.30025743
   ],
-  "zmiana_1d_cm": -2.8,
-  "zmiana_1d_data_bazowa": "2026-08-31",
+  "zmiana_1d_cm": -2.7,
+  "zmiana_1d_data_bazowa": "2026-09-01",
   "zmiana_7d_cm": -18.5,
-  "zmiana_7d_data_bazowa": "2026-08-25",
-  "zmiana_14d_cm": -36.5,
-  "zmiana_14d_data_bazowa": "2026-08-18",
-  "zmiana_30d_cm": -79.8,
-  "zmiana_30d_data_bazowa": "2026-07-31",
-  "zmiana_60d_cm": -148.0,
+  "zmiana_7d_data_bazowa": "2026-08-26",
+  "zmiana_14d_cm": -36.6,
+  "zmiana_14d_data_bazowa": "2026-08-19",
+  "zmiana_30d_cm": -76.3,
+  "zmiana_30d_data_bazowa": "2026-08-03",
+  "zmiana_60d_cm": -150.8,
   "zmiana_60d_data_bazowa": "2026-07-03",
-  "zmiana_90d_cm": -205.9,
+  "zmiana_90d_cm": -208.7,
   "zmiana_90d_data_bazowa": "2026-05-18",
-  "zmiana_120d_cm": -207.0,
-  "zmiana_120d_data_bazowa": "2026-04-29"
+  "zmiana_120d_cm": -211.3,
+  "zmiana_120d_data_bazowa": "2026-05-05"
 }
