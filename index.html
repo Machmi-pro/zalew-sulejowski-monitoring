@@ -1096,7 +1096,7 @@ function renderRzednaMetrics(dane) {
 
   el.innerHTML =
     metric(dane.rzedna_wyliczona_m_npm?.toFixed(2), ' m n.p.m.', 'Rzędna wyliczona') +
-    metric(zakresWartosc, ' m', 'Rozstęp max−min (2026)', '', 'rzedna-zakres-value') +
+    metric(zakresWartosc, ' m', 'Różnica max−min (2026)', '', 'rzedna-zakres-value') +
     metric(z1.text, ' cm', `1 dzień<sup>*</sup> (vs ${dane.zmiana_1d_data_bazowa ?? '—'})`, z1.cls) +
     metric(z7.text, ' cm', `7 dni (vs ${dane.zmiana_7d_data_bazowa ?? '—'})`, z7.cls) +
     metric(z14.text, ' cm', `14 dni (vs ${dane.zmiana_14d_data_bazowa ?? '—'})`, z14.cls) +
