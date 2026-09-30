@@ -2,8 +2,9 @@ name: Aktualizacja danych zbiornika Sulejów
 
 on:
   schedule:
-    # UWAGA: godzina jest w UTC!
-    # 0 11 * * * -> 11:00 UTC = 13:00 czasu polskiego (CEST, lato) / 12:00 (CET, zima)
+    # UWAGA: godziny są w UTC!
+    # 07:00 / 08:00 / 09:00 UTC = 09:00 / 10:00 / 11:00 czasu polskiego latem (CEST)
+    #                           = 08:00 / 09:00 / 10:00 czasu polskiego zimą (CET)
     - cron: '00 07 * * *'
     - cron: '00 08 * * *'
     - cron: '00 09 * * *'
@@ -17,10 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Pobierz repozytorium
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Ustaw Pythona
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
