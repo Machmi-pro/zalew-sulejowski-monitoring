@@ -5,9 +5,9 @@ on:
     # UWAGA: godziny są w UTC!
     # 07:00 / 08:00 / 09:00 UTC = 09:00 / 10:00 / 11:00 czasu polskiego latem (CEST)
     #                           = 08:00 / 09:00 / 10:00 czasu polskiego zimą (CET)
+    - cron: '00 06 * * *'
     - cron: '00 07 * * *'
     - cron: '00 08 * * *'
-    - cron: '00 09 * * *'
   workflow_dispatch: {}
 
 permissions:
