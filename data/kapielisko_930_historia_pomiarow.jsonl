@@ -140,3 +140,4 @@
 {"pobrano_utc": "2026-11-24T19:28:48+00:00", "temp_wody_c": 30.0, "temp_powietrza_c": 24.0, "wiatr_ms": 2.0, "ocena_przydatna": null}
 {"pobrano_utc": "2026-11-25T18:37:17+00:00", "temp_wody_c": 30.0, "temp_powietrza_c": 24.0, "wiatr_ms": 2.0, "ocena_przydatna": null}
 {"pobrano_utc": "2026-11-26T18:22:55+00:00", "temp_wody_c": 30.0, "temp_powietrza_c": 24.0, "wiatr_ms": 2.0, "ocena_przydatna": null}
+{"pobrano_utc": "2026-11-27T18:09:03+00:00", "temp_wody_c": null, "temp_powietrza_c": null, "wiatr_ms": null, "ocena_przydatna": null}
